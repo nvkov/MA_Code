@@ -22,7 +22,6 @@ library("data.table")
 
 attachDate<- function(files){
   filenames_new<- fread(files, sep=";")
-  #filenames_new<- read.table(files, sep=";")
   dates_Preise<- as.numeric(gsub("MobilePreise([0-9]+).*$", "\\1", files))
   filenames_new$Erhebungsdatum<- rep(dates_Preise, nrow(filenames_new))  
   print(paste0("The date has been merged: ", dates_Preise))
