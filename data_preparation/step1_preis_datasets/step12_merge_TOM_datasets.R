@@ -6,9 +6,12 @@ setwd(paste0(project_directory, data_directory))
 
 load("TOMmerge.RData")
 
+tomdf$unique_ID<-as.numeric(row.names(tomdf))
+setkey(tomdf, "unique_ID")
+save(tomdf, file=paste0(project_directory, data_directory, "TOMmerge.RData"))
 tompln<- tomdf[tomdf$Bemerkung=="PLN" | tomdf$Bemerkung=="PLN, NEGOTIABLE" | tomdf$Bemerkung=="PLN, Netto" ]
-
 rm(tomdf)
+
 eurpln<- read.csv("eurpln.txt", sep=";")
 eurpln$Date<- as.Date(eurpln$Date)
 
@@ -33,3 +36,4 @@ print(i)
 tompln<- cbind(tompln, x)
 tompln$valuePrice<-round(tompln$valuePrice/tompln$x)
 save(tompln, file=paste0(project_directory, data_directory,"TOMpln.RData"))
+
