@@ -13,4 +13,4 @@ tompln$x<-NULL
 
 tomdf<-rbind(tomdf, tompln)
 
-save(tompln, file=paste0(project_directory, data_directory,"TOMpln.RData"))
+save(tompln, file=paste0(project_directory, data_directory,"TOMmerge_v2.RData"))
