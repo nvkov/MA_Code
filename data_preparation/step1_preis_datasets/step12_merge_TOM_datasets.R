@@ -28,6 +28,8 @@ x[i]<- meanXchange(tompln[i,])
 print(i)
   }
 
-# Put zloty into Euro: NB function generates NaN for ca. 1000 obs 
+# Put zloty into Euro: NB function generates NaN for 1643 obs. 
+# Reason: missing data on exchange rates for certain days. 
 tompln<- cbind(tompln, x)
 tompln$valuePrice<-round(tompln$valuePrice/tompln$x)
+save(tompln, file=paste0(project_directory, "TOMpln.RData"))
