@@ -1,24 +1,69 @@
-specsA180<- specs[specs$Typ=="A180"]
+rm(list=ls())
+library(data.table)
+library(dplyr)
+#Set working directory
+project_directory<- "C:/Users/Nk/Documents/Uni/MA"
+data_directory<-"/Pkw/MobileDaten/generatedData/CleanFahrzeuge/"
+wd<- paste0(project_directory, data_directory)
 
-df.mini<- df[is.na(df$Hubraum), ]
-df.mini<- df.mini[1:30,]
-df.mini<- df.mini[,c(names(specs[,1:7, with=F])), with=F]
+setwd(wd)
+load("hashtable.RData")
+load("df_step23.RData")
 
-keycols=c("Typ", "Leistung")
-setkeyv(df.mini, keycols)
+#=======================================================================
+
+df$Erstzulassung<-paste0(as.character(df$Erstzulassung), "/01") 
+df$Erstzulassung<- as.IDate(as.character(df$Erstzulassung), format="%Y/%m/%d")
+
+#---------------------------------------------------------Begin function
+imputeHubraum<- function(type){
+
+dftype<- df[df$Typ==type]
+dftype$temp.unique_ID<- as.numeric(row.names(dftype))
+keycols=c("Typ", "Leistung", "Kategorie", "Kraftstoff", "Emission", "Schaltung")
+setkeyv(dftype, keycols)
+
+keycols=c("Typ", "Leistung", "Kategorie", "Kraftstoff", "Emission", "Schaltung")
 setkeyv(specs, keycols)
-df.mini$specs<- paste(df.mini$Typ, df$mini$Leistung, df.mini$Kraftstoff, collapse="x")
-specs$specs<-paste(specs$Typ, specs$Leistung, specs$Kraftstoff, collapse="x")
+
+#specstype<- specs[specs$Typ==type,]
+
+df.mini<- dftype[is.na(dftype$Hubraum), ]
+
+impute<- specs[df.mini, allow.cartesian=T]
+impute<-impute[!is.na(HubraumRound),]
+impute$Hubraum<-impute$HubraumRound
+impute$HubraumRound<- NULL
+impute$i.Erstzulassung<-NULL
+
+dftype<- dftype[!dftype$temp.unique_ID %in% impute$temp.unique_ID,]
+colorder<- c("MobileID", "Kilometer", "Anzeigenanlage", "Typ", "Kategorie", 
+                        "Erstzulassung", "Emission", "Kraftstoff", "Leistung", "Schaltung", 
+                        "HU", "Klimatisierung", "Hubraum", "HandlerID", "LetzteAenderung", 
+                        "maxDatum", "temp.unique_ID")
+setcolorder(dftype, colorder)
+setcolorder(impute, colorder)
+
+dftype<- rbind(dftype, impute) 
+
+save(dftype, file=paste0(wd, "ImputedData/", type, ".RData"))
+return("Done!")
+}
+
+hi<-imputeHubraum("A180")
 
 
-df.mini$specs<- unlist(apply(df.mini[,c("Typ", "Leistung", "Kraftstoff" ), with=F], 1, paste, collapse="x"))
-df.mini$specs<- gsub(" ", "", df.mini$specs)
 
-specs$specs<- unlist(apply(specs[,c("Typ", "Leistung", "Kraftstoff" ), with=F], 1, paste, collapse="x"))
-specs$specs<- gsub(" ", "", specs$specs)
 
-df.mini$specs<- paste(df.mini$Typ, df.mini$Leistung, df.mini$Kraftstoff, collapse="x")
-df.mini$Hubraum<- df.mini$Typ %l+% specs[,1:7, with=F]
 
-#========Replace values for Hubraum:
-df<- df[,Hubraum := replace(Hubraum, is.na(Hubraum), Mode(na.omit(Hubraum))), by=.(Leistung,Typ,Kategorie, Schaltung, Kraftstoff)]
+
+
+
+
+
+
+
+
+
+
+

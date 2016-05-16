@@ -1,78 +1,78 @@
 rm(list=ls())
 library("data.table")
 library("sets")
-#Set working directory
-#setwd("F:\\Pkw\\MobileDaten\\")
-#setwd("C:\\Users\\kovachkn.hub\\Desktop\\MA\\Pkw\\MobileDaten\\")
-setwd("H:\\MA\\Pkw\\generatedData\\")
 
-daten<- read.table('merge2.txt', sep=' ')
+#Set working directory
+project_directory<- "C:/Users/Nk/Documents/Uni/MA"
+data_directory<-"/Pkw/MobileDaten/generatedData/CleanFahrzeuge/"
+wd<- paste0(project_directory, data_directory)
+
+setwd(wd)
+#load("hashtable.RData")
+load("betaset_merge.RData")
+
+daten<- set
+daten<- daten[maxDatum>=firstDate & LetzteAenderung<=lastDate,]
+
+rm(set)
+#=======================================================================
 
 #Clean up cars with two IDs but the same characteristics
 
 # Find observations with perfect repetition on 
 #"Typ", "Kategorie", "Eigenschaften", "Kilometer", "Erstzulassung",
 # "Emission", "Kraftstoff", "Schaltung", "HandlerID", "valuePrice"
-dups<- duplicated(daten[ , c(3, 4,5, 7, 8, 9, 10, 12, 15, 17)])
+relevantCols<- c( "valuePrice", "Kilometer", "Typ", 
+                 "Kategorie", "Erstzulassung", "Emission", "Kraftstoff", "Leistung", 
+                 "Schaltung", "HU", "Klimatisierung", "Hubraum", "HandlerID" )
 
-# Find observations with repetition on 
-#"Typ", "Kategorie", "Eigenschaften", "Kilometer", "Erstzulassung", "firstDate",
-# "Emission", "Kraftstoff", "Schaltung", "HandlerID", "valuePrice"
-#dups1<- duplicated(daten[ , c(3, 4,5, 7, 8, 9, 10, 12, 15, 17, 18)])
 
-# Extract the duplicted data from the table with all repeated observations, but different IDs:
+dups<- duplicated(daten[ , relevantCols, with=F])
 subsub<- daten[dups & !duplicated(daten$MobileID), ]
-
-#subsub1<- daten[dups1 & !duplicated(daten$MobileID), ]
 
 # Extract all the cars with the identified IDs:
 dupID<- unique(subsub$MobileID)
 sameCars_diffID<- daten[daten$MobileID %in% dupID, ]
-sameCars_diffID<- data.table(sameCars_diffID)
 
-#dupID1<- unique(subsub1$MobileID)
-#sameCars_diffID1<- daten[daten$MobileID %in% dupID1, ]
-#sameCars_diffID1<- sameCars_diffID1[order(sameCars_diffID1$valuePrice, sameCars_diffID1$Typ, sameCars_diffID1$HandlerID), ]
-#sameCars_diffID1<- data.table(sameCars_diffID1)
-
-sameCars_diffID<- data.table(sameCars_diffID)
-exp<- sameCars_diffID[,.(MobileID=max(MobileID), Ndays=max(Ndays), Anzeigenanlage=min(Anzeigenanlage), lastDate=max(lastDate)), 
-                       by=.( Typ, Kategorie, Eigenschaften, 
-                             Farbe, Kilometer, Erstzulassung, Emission, Kraftstoff, 
+# Merge all data rows to extract leasing traders:
+exp<- sameCars_diffID[,.(MobileID=max(MobileID), TOM=max(TOM), 
+                         Anzeigenanlage=min(Anzeigenanlage), lastDate=max(lastDate),
+                         erasedIDs=paste(as.character(MobileID), collapse=","),
+                         leasingCount=length(unique(MobileID))), 
+                       
+                      by=.( Typ, Kategorie,Kilometer, Erstzulassung, Emission, Kraftstoff, 
                              Leistung, Schaltung, Klimatisierung, Hubraum, HandlerID, 
                              LetzteAenderung, valuePrice, firstDate)]
 
+# Extract vector with leasing cars:
 
-# Merge all data rows that obviously belong to the same car:
+leasingDF<- exp[exp$leasingCount>2,]
+leasingID<- leasingDF$erasedIDs
+
                                   
-                                  
-#Step 1: Work on a small portion:
-info<- sameCars_diffID$MobileID[sameCars_diffID$valuePrice==19980.1]
-
-small<- sameCars_diffID[sameCars_diffID$MobileID %in% info,]
-small<- small[order(small$HandlerID, small$Erstzulassung, small$valuePrice),]
-
-#First attempt at merging all the values for the same cars:
-#small<- data.table(small)
-#sameCars_diffID<- data.table(sameCars_diffID)
-
+                          
 #Merge car info uploaded twice the same day by mistake:
 
-small_pure1<- exp[ ,.(Anzeigeanlage=min(Anzeigenanlage), lastDate= max(as.numeric(as.character(lastDate))), firstDate=min(as.IDate(firstDate, format="%Y-%m-%d")), 
-                      Ndays=sum(Ndays), MobileID=max(MobileID), LetzteAenderung=max(as.IDate(LetzteAenderung, format="%Y-%m-%d")), erasedIDs=paste(as.character(MobileID), collapse=",") ), 
-                        by=.(Typ, Kilometer, Kategorie, Eigenschaften, Farbe, Erstzulassung, 
-                        Emission, Kraftstoff, Leistung, Schaltung, Klimatisierung, Hubraum, HandlerID, valuePrice)]
+small_pure1<- exp[ ,.(Anzeigeanlage=min(Anzeigenanlage), 
+                      lastDate= max(as.IDate(lastDate, format="%Y-%m-%d")), 
+                      firstDate=min(as.IDate(firstDate, format="%Y-%m-%d")), 
+                      TOM=sum(TOM), 
+                      MobileID=max(MobileID), 
+                      LetzteAenderung=max(as.IDate(as.character(LetzteAenderung), format="%Y%m%d")), 
+                      erasedIDs2=paste(as.character(MobileID), collapse=","),
+                      consecCount=length(unique(MobileID))), 
+                        
+                   by=.(Typ, Kilometer, Kategorie, Erstzulassung,leasingCount, 
+                        Emission, Kraftstoff, Leistung, Schaltung, 
+                        Klimatisierung, Hubraum, HandlerID, valuePrice)]
 
-#hey<- sameCars_diffID[!small_pure$MobileID %in% sameCars_diffID,]
-#id<- small_pure1$erasedID[small_pure1$MobileID==168704388]
 
-#hi<- unlist(strsplit(id, ","))
-
-#hey<- daten[daten$MobileID %in% hi, ]
-#hey1<- exp[exp$MobileID %in% hi, ]
-#hey2<- small_pure1[small_pure1$MobileID %in% hi, ]
-
-small_pure1[small_pure1$valuePrice==29750 & small_pure1$handlerID==707810, ]
+#==================================
+#Explore 
+#eID<- small_pure1$erasedIDs2[small_pure1$consecCount==215]
+#eID<- eID[1]
+#consecIDs<- unlist(strsplit(eID, ","))
+#rep<-exp[as.character(exp$MobileID) %in% consecIDs]
 
 
 # Market size variable:
@@ -81,7 +81,6 @@ small_pure1$Erstzulassung<-paste0(as.character(small_pure1$Erstzulassung), "/01"
 
 
 small_pure1$Erstzulassung<- as.IDate(as.character(small_pure1$Erstzulassung), format="%Y/%m/%d")
-small_pure1$lastDate<- as.IDate(as.character(small_pure1$lastDate), format="%Y%m%d")
 small_pure1$Anzeigeanlage<- as.IDate(as.character(small_pure1$Anzeigeanlage), format="%Y%m%d")
 small_pure1$age<- difftime(small_pure1$lastDate, small_pure1$Erstzulassung, units="days")
 #small_pure1$interval<- integers(as.numeric(small_pure1$LetzteAenderung), as.numeric(small_pure1$lastDate))
@@ -111,28 +110,38 @@ marketSize<- function(i, data){
     
     data$MobileID[ data$Typ==data$Typ[i] 
                           & data$Kategorie==data$Kategorie[i] 
-                          & abs(data$age-data$age[i])<=60 
+                          & abs(data$age-data$age[i])<=90 
                           & abs(data$Kilometer-data$Kilometer[i])<=10000 
                           & data$firstDate<=data$lastDate[i]
                           & data$lastDate>= data$firstDate[i]
                           ]
   )
   )
+  print(i)
   return(temp)
 }
 
-df<- small_pure1
+data<- small_pure1
 rm(small_pure1)
 
-i=112
-marketSize(i, df)
+i=100
+marketSize(i, data)
 
-xy.list<- as.list(seq(from=1, to=nrow(df), by=1))
+xy.list<- as.list(seq(from=1, to=nrow(data), by=1))
 
-marketSize<- rep(NA, nrow(df))
-marketSize<-sapply(xy.list, FUN=marketSize, data = df)
-marketSize<- as.numeric(as.character(marketSize))
+mS<- rep(NA, nrow(data))
+mS<-sapply(xy.list, FUN=marketSize, data = data)
+mS<- as.numeric(as.character(mS))
 
-df<- cbind(df, marketSize)
+df<- cbind(data, mS)
+save(df, file=paste0(wd,"msdf.RData"))
 
-write.table(df, "smalldfWithMS.txt")
+
+##=============================================================
+# Survival data:
+library(survival)
+mini.surv <- survfit(Surv(df$TOM)~ df$mS, conf.type="none")
+summary(mini.surv)
+plot(mini.surv, xlab="Time", ylab="Survival Probability")
+
+

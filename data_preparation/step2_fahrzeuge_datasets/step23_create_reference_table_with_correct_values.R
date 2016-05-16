@@ -47,8 +47,8 @@ df$Erstzulassung<- as.IDate(as.character(df$Erstzulassung), format="%Y/%m/%d")
 df$Hubraum<- as.numeric(as.character(df$Hubraum))
 sort(unique(df$Hubraum))
 #Erase unrealistic Hubraum:
-df$Hubraum[as.numeric(df$Hubraum)<=1000]<- "NA"
-df$Hubraum[as.numeric(df$Hubraum)>=6000]<- "NA"
+df$Hubraum[as.numeric(df$Hubraum)<=1000]<- NA
+df$Hubraum[as.numeric(df$Hubraum)>=6000]<- NA
 
 #See again what is left:
 sum.specs<- with(df, tapply(as.numeric(Hubraum), list(Typ), summary))
@@ -62,42 +62,33 @@ sum.specs<- with(df, tapply(as.numeric(Hubraum), list(Typ), summary))
 specs<- df[complete.cases(df),]
 specs<- specs[ ,.(Erstzulassung=max(Erstzulassung)), by=.(Typ, Kategorie, Emission, Kraftstoff, Leistung, Schaltung, Hubraum)]
 
-specs$Emission[specs$Emission==""]<-"NA"
-specs$Emission<- as.numeric(as.character(specs$Emission))
+specs$Emission[specs$Emission==""]<-NA
+#specs$Emission<- as.numeric(as.character(specs$Emission))
 
-specs$Schaltung[specs$Schaltung==""]<-"NA"
-specs$Emission<- as.numeric(as.character(specs$Schaltung))
+specs$Schaltung[specs$Schaltung==""]<-NA
+#specs$Emission<- as.numeric(as.character(specs$Schaltung))
+
+q25Leistung<- quantile(df$Leistung, 0.25, na.rm=T)
+specs$Leistung[specs$Leistung<q25Leistung]<-NA
 
 specs<- specs[ ,.(Erstzulassung=max(Erstzulassung)), by=.(Typ, Kategorie, Emission, Kraftstoff, Leistung, Schaltung, Hubraum)]
 specs<- specs[!is.na(specs$Emission) & !is.na(specs$Schaltung) & !is.na(specs$Hubraum), ]
+specs<- specs[!is.na(specs$Erstzulassung) & !is.na(specs$Leistung) & !is.na(specs$Kraftstoff), ]
+
 specs<-specs[!duplicated(specs),]
 with(specs, tapply(as.numeric(Hubraum), list(Typ), summary))
 with(specs, tapply(as.Date(Erstzulassung), list(Typ), summary))
 with(specs, tapply(as.factor(Kraftstoff), list(Typ), summary))
 with(specs, tapply(as.factor(Kategorie), list(Typ), summary))
 
+#Round up Hubraum to the tens:
+specs$HubraumRound<- round(specs$Hubraum/10)*10
+with(specs, tapply(as.numeric(Hubraum), list(Typ), summary))
+with(specs, tapply(as.numeric(HubraumRound), list(Typ), summary))
 
-specsA180<- specs[specs$Typ=="A180"]
+specs<- specs[ ,.(Erstzulassung=max(Erstzulassung)), by=.(Typ, Kategorie, Emission, Kraftstoff, Leistung, Schaltung, HubraumRound)]
+specsA180<-specs[specs$Typ=="A180"]
 
-df.mini<- df[is.na(df$Hubraum), ]
-df.mini<- df.mini[1:30,]
-df.mini<- df.mini[,c(names(specs[,1:7, with=F])), with=F]
-
-keycols=c("Typ", "Leistung")
-setkeyv(df.mini, keycols)
-setkeyv(specs, keycols)
-df.mini$specs<- paste(df.mini$Typ, df$mini$Leistung, df.mini$Kraftstoff, collapse="x")
-specs$specs<-paste(specs$Typ, specs$Leistung, specs$Kraftstoff, collapse="x")
+save(specs, file=paste0(wd, "hashtable.Rdata"))
 
 
-df.mini$specs<- unlist(apply(df.mini[,c("Typ", "Leistung", "Kraftstoff" ), with=F], 1, paste, collapse="x"))
-df.mini$specs<- gsub(" ", "", df.mini$specs)
-
-specs$specs<- unlist(apply(specs[,c("Typ", "Leistung", "Kraftstoff" ), with=F], 1, paste, collapse="x"))
-specs$specs<- gsub(" ", "", specs$specs)
-
-df.mini$specs<- paste(df.mini$Typ, df.mini$Leistung, df.mini$Kraftstoff, collapse="x")
-df.mini$Hubraum<- df.mini$Typ %l+% specs[,1:7, with=F]
-
-#========Replace values for Hubraum:
-df<- df[,Hubraum := replace(Hubraum, is.na(Hubraum), Mode(na.omit(Hubraum))), by=.(Leistung,Typ,Kategorie, Schaltung, Kraftstoff)]
