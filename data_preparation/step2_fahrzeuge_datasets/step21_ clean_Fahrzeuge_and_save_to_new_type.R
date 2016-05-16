@@ -2,7 +2,11 @@
 rm(list=ls())
 
 #Set working directory
-setwd("H:\\MA\\Pkw\\MobileDaten\\")
+project_directory<- "C:/Users/Nk/Documents/Uni/MA"
+data_directory<-"/Pkw/MobileDaten/"
+wd<- paste0(project_directory, data_directory)
+
+setwd(wd)
 
 library("data.table")
 library("stringr")
@@ -10,17 +14,15 @@ library("stringr")
 #Read files with car specifications:
 files.list.fahrzeuge<- list.files(pattern='MobileFahrzeuge([0-9]+)Orig*')
 length(files.list.fahrzeuge)
-memory.limit(size=50000)
 files.list<- files.list.fahrzeuge[1]
 
 #Merge and purge data:
 
 #write function to read Fahrzeuge
 readFahrzeuge<-function(files.list){
-#df<- data.table(do.call(`rbind`,lapply(files.list, fread, sep=";")))
 df<- fread(files.list, sep=";")
 df<- df[df$Art=="USED",]
-setnames(df,"HändlerID","HandlerID")
+setnames(df,names(df)[21],"HandlerID")
 print("Finished reading")
 
 #Clean up the form for Erstzulassung
@@ -254,7 +256,7 @@ df<- df[, (maxDatum=max(Datum)),
 print("Dropped Beschreibung")
 
 #Write table to file
-write.table(df, paste0("H:\\MA\\Pkw\\generatedData\\Fahrzeuge\\Clear", max(files.list) ), row.names = F, sep=";")
+write.table(df, paste0(project_directory, data_directory, "/generatedData/CleanFahrzeuge/Clean", max(files.list) ), row.names = F, sep=";")
 print("File written")
 #return(df)
 return(print("Done!"))
