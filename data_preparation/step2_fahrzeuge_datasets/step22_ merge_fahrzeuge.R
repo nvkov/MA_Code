@@ -14,6 +14,7 @@ library("stringr")
 #Read files with car specifications:
 files.list.fahrzeuge<- list.files(pattern='CleanMobileFahrzeuge([0-9]+)Orig*')
 length(files.list.fahrzeuge)
+files.list<- files.list.fahrzeuge[1]
 
 #Merge clean data:
 
@@ -36,7 +37,7 @@ print("Reduced Eigenschaften")
 
 print(paste0("Number of rows is: ", nrow(df)))
 
-write.table(df, file=paste0(wd,"/fahrzeugeFull.RData" ))
+save(df, file=paste0(wd,"/fahrzeugeFull.RData" ))
 print("File written")
 return(print("Done!"))
 }

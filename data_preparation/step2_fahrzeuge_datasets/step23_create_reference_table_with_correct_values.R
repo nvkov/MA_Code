@@ -1,13 +1,18 @@
 rm(list=ls())
+
+#Set working directory
+project_directory<- "C:/Users/Nk/Documents/Uni/MA"
+data_directory<-"/Pkw/MobileDaten/generatedData/CleanFahrzeuge/"
+wd<- paste0(project_directory, data_directory)
+
+setwd(wd)
+load("df_step23.Rdata")
+
 library("data.table")
 library("XML")
 library("stringr")
 library("pastecs")
 library("qdap") #For matching and imputing
-
-setwd("H:\\MA\\Pkw\\generatedData\\Fahrzeuge\\")
-df<- fread("fahrzeugeFull_16421.txt", sep=";", 
-           colClasses=c(Hubraum="numeric",Typ="factor",Leistung="numeric", Emission="numeric"))
 
 #Function for mode:
 Mode <- function(x) {
