@@ -3,7 +3,7 @@ rm(list=ls())
 
 #Set working directory
 project_directory<- "C:/Users/Nk/Documents/Uni/MA"
-data_directory<-"/Pkw/MobileDaten/ClearFahrzeuge/"
+data_directory<-"/Pkw/MobileDaten/generatedData/CleanFahrzeuge/"
 wd<- paste0(project_directory, data_directory)
 
 setwd(wd)
@@ -12,7 +12,7 @@ library("data.table")
 library("stringr")
 
 #Read files with car specifications:
-files.list.fahrzeuge<- list.files(pattern='ClearMobileFahrzeuge([0-9]+)Orig*')
+files.list.fahrzeuge<- list.files(pattern='CleanMobileFahrzeuge([0-9]+)Orig*')
 length(files.list.fahrzeuge)
 
 #Merge clean data:
@@ -36,7 +36,7 @@ print("Reduced Eigenschaften")
 
 print(paste0("Number of rows is: ", nrow(df)))
 
-write.table(df, paste0("H:\\MA\\Pkw\\generatedData\\fahrzeugeFull_16421.txt" ),row.names = F, sep=";" )
+write.table(df, file=paste0(wd,"/fahrzeugeFull.RData" ))
 print("File written")
 return(print("Done!"))
 }

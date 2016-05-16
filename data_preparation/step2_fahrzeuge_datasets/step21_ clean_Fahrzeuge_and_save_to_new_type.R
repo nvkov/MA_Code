@@ -263,7 +263,7 @@ return(print("Done!"))
 }
 
 #readFahrzeuge(files.list)
-lapply(files.list.fahrzeuge[10:47], readFahrzeuge)
+lapply(files.list.fahrzeuge[1:47], readFahrzeuge)
 
 #-------------------------------------------------------------------------------
 
