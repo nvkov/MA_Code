@@ -3,10 +3,10 @@ rm(list=ls())
 
 #Set working directory
 project_directory<- "C:/Users/Nk/Documents/Uni/MA"
-data_directory<-"/Pkw/MobileDaten/"
+data_directory<-"/Pkw/MobileDaten/ClearFahrzeuge/"
+wd<- paste0(project_directory, data_directory)
 
-
-setwd("H:\\MA\\Pkw\\generatedData\\Fahrzeuge\\")
+setwd(wd)
 
 library("data.table")
 library("stringr")
@@ -14,7 +14,6 @@ library("stringr")
 #Read files with car specifications:
 files.list.fahrzeuge<- list.files(pattern='ClearMobileFahrzeuge([0-9]+)Orig*')
 length(files.list.fahrzeuge)
-memory.limit(size=50000)
 
 #Merge clean data:
 
