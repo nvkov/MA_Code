@@ -50,6 +50,10 @@ sort(unique(df$Hubraum))
 df$Hubraum[as.numeric(df$Hubraum)<=1000]<- "NA"
 df$Hubraum[as.numeric(df$Hubraum)>=6000]<- "NA"
 
+#See again what is left:
+sum.specs<- with(df, tapply(as.numeric(Hubraum), list(Typ), summary))
+
+
 #mean <- tapply(df$Hubraum,df$Typ, summary) 
 #stat.desc(df[])
 #Explore the missings:
@@ -57,16 +61,28 @@ df$Hubraum[as.numeric(df$Hubraum)>=6000]<- "NA"
 #Extract complete cases:
 specs<- df[complete.cases(df),]
 specs<- specs[ ,.(Erstzulassung=max(Erstzulassung)), by=.(Typ, Kategorie, Emission, Kraftstoff, Leistung, Schaltung, Hubraum)]
+
 specs$Emission[specs$Emission==""]<-"NA"
+specs$Emission<- as.numeric(as.character(specs$Emission))
+
 specs$Schaltung[specs$Schaltung==""]<-"NA"
-specs<- specs[specs$Emission!="NA" & specs$Schaltung!="NA" &specs$Hubraum!="NA", ]
-#specs<- specs[order(specs$Typ),]
+specs$Emission<- as.numeric(as.character(specs$Schaltung))
+
+specs<- specs[ ,.(Erstzulassung=max(Erstzulassung)), by=.(Typ, Kategorie, Emission, Kraftstoff, Leistung, Schaltung, Hubraum)]
+specs<- specs[!is.na(specs$Emission) & !is.na(specs$Schaltung) & !is.na(specs$Hubraum), ]
 specs<-specs[!duplicated(specs),]
 with(specs, tapply(as.numeric(Hubraum), list(Typ), summary))
+with(specs, tapply(as.Date(Erstzulassung), list(Typ), summary))
+with(specs, tapply(as.factor(Kraftstoff), list(Typ), summary))
+with(specs, tapply(as.factor(Kategorie), list(Typ), summary))
 
-df.mini<- df[df$Hubraum=="NA", ]
+
+specsA180<- specs[specs$Typ=="A180"]
+
+df.mini<- df[is.na(df$Hubraum), ]
 df.mini<- df.mini[1:30,]
 df.mini<- df.mini[,c(names(specs[,1:7, with=F])), with=F]
+
 keycols=c("Typ", "Leistung")
 setkeyv(df.mini, keycols)
 setkeyv(specs, keycols)
