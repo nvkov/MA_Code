@@ -2,8 +2,11 @@
 rm(list=ls())
 
 #Set working directory
-setwd("H:\\MA\\Pkw\\generatedData\\Fahrzeuge\\")
+project_directory<- "C:/Users/Nk/Documents/Uni/MA"
+data_directory<-"/Pkw/MobileDaten/"
 
+
+setwd("H:\\MA\\Pkw\\generatedData\\Fahrzeuge\\")
 
 library("data.table")
 library("stringr")
