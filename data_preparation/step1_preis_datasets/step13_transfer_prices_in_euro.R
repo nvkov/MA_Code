@@ -9,5 +9,4 @@ filenames<- list.files(pattern="TOMMobilePreise*")
 tomdf<- do.call(`rbind`,lapply(filenames, fread, sep=";"))
 tomdf<- tomdf[,.(TOM=sum(TOM), firstDate=min(firstDate), lastDate=max(lastDate)), by=.(MobileID, valuePrice, Bemerkung)]
 
-save(tomdf, file=paste0(project_directory, data_directory, "TOMmerge.RData"))
-#
+save(tomdf, file=paste0(project_directory, "TOMmerge.RData"))

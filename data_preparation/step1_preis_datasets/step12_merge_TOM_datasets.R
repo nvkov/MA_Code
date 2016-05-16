@@ -12,9 +12,22 @@ rm(tomdf)
 eurpln<- read.csv("eurpln.txt", sep=";")
 eurpln$Date<- as.Date(eurpln$Date)
 
-meanXchange<- function(eurpln, firstDate, lastDate){
-  mean(eurpln$Price[eurpln$Date>firstDate & eurpln$Date<lastDate])
+
+#-----------------
+meanXchange<- function(tompln){
+x<-  mean(eurpln$Price[eurpln$Date>=tompln$firstDate & eurpln$Date<=tompln$lastDate], na.rm=T)
+return(x)
 }
 
-meanXchange(eurpln, "2010-11-17", "2011-12-18")
-meanXchange(eurpln, tompln$firstDate, tompln$lastDate)
+meanXchange(tompln[123,])
+
+#Implement (implementation could be faster with lapply - look later into it):
+x<- NULL
+for(i in 1:nrow(tompln)){
+x[i]<- meanXchange(tompln[i,])
+print(i)
+  }
+
+# Put zloty into Euro: NB function generates NaN for ca. 1000 obs 
+tompln<- cbind(tompln, x)
+tompln$valuePrice<-round(tompln$valuePrice/tompln$x)
