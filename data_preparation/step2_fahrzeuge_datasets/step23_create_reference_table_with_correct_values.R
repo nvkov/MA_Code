@@ -86,9 +86,12 @@ specs$HubraumRound<- round(specs$Hubraum/10)*10
 with(specs, tapply(as.numeric(Hubraum), list(Typ), summary))
 with(specs, tapply(as.numeric(HubraumRound), list(Typ), summary))
 
+<<<<<<< HEAD
 specs<- specs[ ,.(Erstzulassung=max(Erstzulassung)), by=.(Typ, Kategorie, Emission, Kraftstoff, Leistung, Schaltung, HubraumRound)]
 specsA180<-specs[specs$Typ=="A180"]
 
+=======
+>>>>>>> 8457b2946a54de64e3b8de7bdfe165cdbcd2f4b3
 save(specs, file=paste0(wd, "hashtable.Rdata"))
 
 
