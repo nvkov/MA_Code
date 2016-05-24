@@ -1,6 +1,5 @@
-#Part 1: General steps, ideas, progress summary and questions
+#Step01: Subset for commercial vendors from Germany:
 rm(list=ls())
-
 
 project_directory<- "C:/Users/Nk/Documents/Uni/MA/" 
 data_directory<- "Pkw/MobileDaten/"   
@@ -32,4 +31,10 @@ print("Vendor number after subsetting for commercial vendors")
 nrow(df)
 sink()
 
-setnames(df, "ID", "vedor_ID")
+setnames(df, "ID", "vendor_ID")
+
+#Save relevant vendor_IDs for subsetting:
+vendor_df<- df[, c("vendor_ID", "PLZ"), with=F]
+
+save(vendor_df, file=paste0(project_directory, data_directory, "generatedData/Vendors/vendor_df.RData"))
+
