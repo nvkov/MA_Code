@@ -10,10 +10,10 @@ load("fahrzeugeFull.Rdata")
 
 relevantCols<- c("MobileID", "Kilometer", "Anzeigenanlage", "Typ", "Kategorie", 
                  "Erstzulassung", "Emission", "Kraftstoff", "Leistung", 
-                 "Schaltung", "HU", "Hubraum", "HandlerID", 
+                 "Schaltung", "Hubraum", "HandlerID", 
                  "LetzteAenderung", "maxDatum")
 
-irrelCols<- c("Farbe", "Eigenschaften")
+irrelCols<- c("Farbe", "Eigenschaften", "HU")
 
 df[,irrelCols]<- NULL
 
