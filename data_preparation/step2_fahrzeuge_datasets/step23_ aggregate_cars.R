@@ -12,7 +12,7 @@ library("data.table")
 library("stringr")
 
 #Read files with car specifications:
-load("cars_commercial_vendors_full.RData")
+load("cars_full_after_step22.RData")
 
 setwd(project_directory)
 sink("cars_descriptive_statistics.txt", append=T)
@@ -20,7 +20,9 @@ print("Number of cars before aggregating cars with the same parameters (step23)"
 nrow(df)
 sink()
 
-df<- df[, .(cars_lastDate=max(V1)), 
+setnames(df, "HandlerID", "vendor_ID")
+
+df<- df[, .(cars_lastDate=max(maxDatum)), 
                   by=.(MobileID, Anzeigenanlage, LetzteAenderung, Typ, Kategorie,
                   Eigenschaften, Farbe,  Kilometer,  HU,  Erstzulassung,  Emission,  Kraftstoff,  
                   Leistung, Schaltung,  Klimatisierung, Hubraum,  vendor_ID) ] 
@@ -31,10 +33,6 @@ nrow(df)
 sink()
 
 setnames(df, "LetzteAenderung", "cars_lastChange")
-
-#df<- df[, .(Eigenschaften= paste(Reduce(intersect, strsplit(Eigenschaften, ",") ), collapse=","), LetzteAenderung=max(LetzteAenderung), maxDatum=max(maxDatum)), 
-#                                   by=.(MobileID, Kilometer, Anzeigenanlage, Typ, Kategorie, Farbe, Erstzulassung,
-#                                        Emission, Kraftstoff, Leistung, Schaltung, HU, Klimatisierung,Hubraum, vendor_ID)]
 
 #-------------------------------------------------------------------------------
 save(df, file=paste0(project_directory, data_directory, "cars_full_after_step23.RData"))
