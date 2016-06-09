@@ -22,6 +22,7 @@ files.list<- files.list.fahrzeuge[1]
 readFahrzeuge<-function(files.list){
 df<- fread(files.list, sep=";")
 df<- df[df$Art=="USED",]
+df<- df[!grep("Tagesz", df$Beschreibung),]
 setnames(df,names(df)[21],"HandlerID")
 print("Finished reading")
 
@@ -246,7 +247,6 @@ df.andere$Typ[is.na(str_extract(df.andere$Beschreibung, condition7))==F]<- paste
 df.andere$Typ[is.na(str_extract(df.andere$Beschreibung, condition7))==F]<- paste0(str_extract(df.andere$Beschreibung, "ML|E|C|CLK|G|S|CLS|SL")[is.na(str_extract(df.andere$Beschreibung, condition7))==F], df.andere$Typ[is.na(str_extract(df.andere$Beschreibung, condition7))==F])
 print("Cleaned up ANDERE")
 #------------------------------------------------------------------------------------------------------
-
 
 
 df<- df[, (maxDatum=max(Datum)), 

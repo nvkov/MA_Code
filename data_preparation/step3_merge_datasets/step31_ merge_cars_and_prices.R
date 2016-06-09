@@ -56,5 +56,5 @@ nrow(df_merge)
 sink()
 
 save(df_merge, file=paste0(project_directory, data_directory_general, "Merged_data/df_merge_after_step31.RData" ))
-save(df_merge, file=paste0(project_directory, data_directory_general, "Merged_data/df_merge_first_time_prices_after_step31.RData" ))
-save(df_merge, file=paste0(project_directory, data_directory_general, "Merged_data/df_merge_car_changes_after_step31.RData" ))
+#save(df_merge, file=paste0(project_directory, data_directory_general, "Merged_data/df_merge_first_time_prices_after_step31.RData" ))
+#save(df_merge, file=paste0(project_directory, data_directory_general, "Merged_data/df_merge_car_changes_after_step31.RData" ))
