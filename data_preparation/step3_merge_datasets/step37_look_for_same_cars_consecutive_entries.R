@@ -14,15 +14,14 @@ library("data.table")
 library("stringr")
 
 #Read files with car specifications:
-load("Merged_data/df_merge_after_step36.RData")
+load("Merged_data/df_merge_after_step35.RData")
 
 
-df_merge<- df_merge[ , .(car_ID=max(car_ID), consecutive_car_ID=paste(car_ID, collapse = ","),
-                         leasing_car_ID=paste(leasing_car_ID, collapse = ","),
+df_merge<- df_merge[ , .(car_ID=max(car_ID), car_IDs=paste(car_ID, collapse = ","),
                          cars_lastDate=max(cars_lastDate), cars_lastChange=min(cars_lastChange),
                          prices_firstDate=min(prices_firstDate), prices_lastDate=max(prices_lastDate),
                          TOM=sum(TOM), Anzeigenanlage=min(Anzeigenanlage),
-                         leasing=max(leasing), consecutives=.N), 
+                         rows=.N), 
                     by=.(valuePrice, Typ, Kategorie, Farbe, HU, Erstzulassung, 
                          Emission, Kraftstoff, Leistung, Schaltung, Klimatisierung, 
                          Hubraum, Eigenschaften, Kilometer, vendor_ID) ]

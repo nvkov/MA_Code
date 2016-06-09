@@ -7,21 +7,15 @@ setwd("H:\\MA\\Pkw\\generatedData\\")
 
 library("data.table")
 
-df<- fread("H:\\MA\\Pkw\\generatedData\\finalMerge16408.txt", sep=";")
+df<- load("Merged_data/df_merge_after_step41_A.RData")
 #Write a variable for the distance between Erstzulassung and HU:
 
-df$Erstzulassung<-paste0(as.character(df$Erstzulassung), "/01") 
-df$Erstzulassung<- as.IDate(as.character(df$Erstzulassung), format="%Y/%m/%d")
 
-df$HU<-paste0(as.character(df$HU), "/01") 
-df$HU<- as.IDate(as.character(df$HU), format="%Y/%m/%d")
-df$lastDate<- as.IDate(as.character(df$lastDate), format="%Y%m%d")
-df$firstDate<- as.IDate(as.character(df$firstDate), format="%Y%m%d")
+df$HU<-paste0(as.character(df$HU), "01") 
+df$HU<- as.IDate(as.character(df$HU), format="%Y%m%d")
+#df$lastDate<- as.IDate(as.character(df$lastDate), format="%Y%m%d")
+#df$firstDate<- as.IDate(as.character(df$firstDate), format="%Y%m%d")
 
-df$age<- difftime(df$lastDate, df$Erstzulassung, units="days")
-
-#It is important to calculate this after merging all datasets!
-df$HUEZdiff<- difftime(df$HU, df$Erstzulassung, units="days")
 
 #Create a variable for interaction between type and categorie:
 df$typeXcat<- paste(df$Typ, df$Kategorie, sep="x")

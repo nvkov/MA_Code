@@ -252,8 +252,8 @@ print("Cleaned up ANDERE")
 df<- df[, (maxDatum=max(Datum)), 
         by=.(MobileID, Anzeigenanlage, LetzteAenderung, Typ, Kategorie,
              Eigenschaften, Farbe,  Kilometer,  HU,  Erstzulassung,  Emission,  Kraftstoff,  
-             Leistung, Schaltung,  Klimatisierung, Hubraum,  HandlerID) ] 
-print("Dropped Beschreibung")
+             Leistung, Schaltung,  Klimatisierung, Hubraum,  HandlerID, Beschreibung) ] 
+#print("Dropped Beschreibung")
 
 #Write table to file
 write.table(df, paste0(project_directory, data_directory, "/generatedData/CleanFahrzeuge/Clean", max(files.list) ), row.names = F, sep=";")
