@@ -63,7 +63,7 @@ df_merge<- df_merge[ , .(cars_lastChange=min(cars_lastChange),
 df_merge$Emission<- str_sub(df_merge$newEm, start= -2)
 
 df_merge<- df_merge[ , .(cars_lastChange=min(cars_lastChange), 
-                         cars_lastDate=max(cars_lastDate), Hubraum=max(Emission), 
+                         cars_lastDate=max(cars_lastDate), Hubraum=max(Hubraum), 
                          newHubraum= paste(Hubraum, collapse=","),
                          varHubraum= var(Hubraum, na.rm=T) , rows=.N), 
                      by=.(car_ID, valuePrice, TOM, prices_firstDate, prices_lastDate, 
