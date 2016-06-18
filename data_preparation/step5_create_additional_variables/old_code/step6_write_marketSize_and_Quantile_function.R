@@ -50,11 +50,5 @@ df<- cbind(data, mS)
 save(df, file=paste0(wd,"msdf.RData"))
 
 
-##=============================================================
-# Survival data:
-library(survival)
-mini.surv <- survfit(Surv(df$TOM)~ df$mS, conf.type="none")
-summary(mini.surv)
-plot(mini.surv, xlab="Time", ylab="Survival Probability")
 
 

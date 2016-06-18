@@ -16,31 +16,22 @@ library("stringr")
 #Read files with car specifications:
 load("Merged_data/df_merge_after_step33.RData")
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 irrelevantCols<- c("km_change", "age_check")
-=======
-irrelevantCols<- c("km_change", "age_check", "cars_lastChange", "cars_lastDate")
->>>>>>> 37d68dd1a0435910389c69430ee874f1ae8afad4
-=======
-irrelevantCols<- c("km_change", "age_check")
->>>>>>> c26894f6cac69b4faf30e05b1b2ca3df639ee717
 
 df_merge<- df_merge[, -irrelevantCols, with=F]
 
-df_merge<- df_merge[, .(car_ID=paste(car_ID, collapse=","), vendor_ID=paste(vendor_ID, collapse=","), howMany=.N), 
+df_merge<- df_merge[, .(car_ID=paste(car_ID, collapse=","), 
+                        vendor_ID= max(vendor_ID),
+                        vendor_ID_check=paste(vendor_ID, collapse=","), 
+                        howMany=.N, 
+                        varVendor=var(vendor_ID)), 
+                    
                     by=.(valuePrice, TOM, prices_firstDate, prices_lastDate, 
                          Anzeigenanlage, Typ, Kategorie, Farbe, HU, Erstzulassung, 
                          Emission, Kraftstoff, Leistung, Schaltung, Klimatisierung, 
-<<<<<<< HEAD
-<<<<<<< HEAD
-                         Hubraum, Eigenschaften, Kilometer), cars_lastDate, cars_lastChange]
-=======
-                         Hubraum, Eigenschaften, Kilometer)]
->>>>>>> 37d68dd1a0435910389c69430ee874f1ae8afad4
-=======
-                         Hubraum, Eigenschaften, Kilometer), cars_lastDate, cars_lastChange]
->>>>>>> c26894f6cac69b4faf30e05b1b2ca3df639ee717
+                         Hubraum, Eigenschaften, Kilometer, cars_lastDate, cars_lastChange)]
+
+head(df_merge[df_merge$howMany>1 & df_merge$varVendor==0,])
 
 double_vendors<- df_merge[df_merge$howMany>1,]
 

@@ -27,6 +27,10 @@ df_merge<- df_merge[ , .(cars_lastChange=min(cars_lastChange),
                  Leistung, Schaltung, Klimatisierung, Hubraum, Eigenschaften, vendor_ID)]
 
 #Look at varHU>0 and newHU to understand the logic of each vendor:
+#View(df_merge[df_merge$varHU>0,])
+#Inspect vendors with this behavior:
+View(df_merge[df_merge$vendor_ID %in% df_merge$vendor_ID[df_merge$varHU>0]])
+
 #----------------------------------------------------------
 df_merge$newHU<- NULL
 df_merge$varHU<- NULL

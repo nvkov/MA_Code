@@ -26,14 +26,15 @@ df_merge<- df_merge[,`:=`( COUNT = .N , IDX = 1:.N ),
 df_merge$bought<- rep(0, nrow(df_merge))
 df_merge$bought[df_merge$COUNT==df_merge$IDX]<- 1
 
-df_merge$right_censored<- rep(0, nrow(df_merge))
-df_merge$right_censored[df_merge$bought==0]<- 1
-df_merge$right_censored[df_merge$prices_lastDate=="2012-12-18"]<-1
+df_merge$right_censored<- rep(1, nrow(df_merge))
+df_merge$right_censored[df_merge$bought==0]<- 0
+df_merge$right_censored[df_merge$prices_lastDate=="2012-12-18"]<-0
 
 df_merge$newTOM<- as.numeric(df_merge$prices_lastDate-df_merge$prices_firstDate) +1
 
 df_merge$age<- as.numeric(df_merge$cars_lastChange-df_merge$Erstzulassung)
 
+# Subset for used cars (drop young cars - 7 months or low km count): 
 df_merge[df_merge$age<210,]<- NULL
 df_merge<-df_merge[df_merge$Kilometer>1000 &df_merge$age>210,]
 

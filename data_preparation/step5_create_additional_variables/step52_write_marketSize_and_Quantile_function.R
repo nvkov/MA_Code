@@ -52,7 +52,8 @@ mS<-t(sapply(xy.list, FUN=marketSize, data = data))
 #df<- cbind(data, mS)
 save(df, file=paste0(wd,"msdf.RData"))
 
-files.list<-list.files()
+files.list<-list.files()[161:257]
+
 for(i in files.list){
   load(paste0(project_directory, data_directory, i))
   print(i)
@@ -62,13 +63,8 @@ for(i in files.list){
   temp<- cbind(temp, mS)
   setnames(temp, "V1", "MS")
   setnames(temp, "V2", "Quantile")
-  save(temp, file=paste0(project_directory, data_directory, "new_", i ))
+  save(temp, file=paste0(project_directory, data_directory, "with_MS/", "new_", i ))
 }
 ##=============================================================
-# Survival data:
-#library(survival)
-#mini.surv <- survfit(Surv(df$TOM)~ df$mS, conf.type="none")
-#summary(mini.surv)
-#plot(mini.surv, xlab="Time", ylab="Survival Probability")
 
 
