@@ -1,4 +1,4 @@
-#Assess full dataset:
+#Correct Leistung:
 
 rm(list=ls())
 library("data.table")
@@ -82,8 +82,8 @@ summary_leistung<- summary_leistung[,`:=`(newLeistung = replace(newLeistung, is.
 
 # Identify categories with slight deviation from the real value -----------
 # Find distance to type modal value:
-summary_leistung$leistung_devation_mode<- summary_leistung$newLeistung - summary_leistung$type_mode_leistung
-summary_leistung$newLeistung<- summary_leistung$newLeistung - summary_leistung$leistung_devation_mode
+summary_leistung$leistung_deviation_mode<- summary_leistung$newLeistung - summary_leistung$type_mode_leistung
+summary_leistung$newLeistung<- summary_leistung$newLeistung - summary_leistung$leistung_deviation_mode
 
 
 # Impute the rest missing on type and Kraftstoff only ---------------------
@@ -117,8 +117,8 @@ df<- df[,`:=`(newLeistung = replace(newLeistung, is.na(newLeistung)==T, Mode(new
 
 # Step 4: Identify categories with slight deviation from the real value ---
 # Find distance to type modal value:
-df$leistung_devation_mode<- df$newLeistung - df$type_mode_leistung
-df$newLeistung<- df$newLeistung - df$leistung_devation_mode
+df$leistung_deviation_mode<- df$newLeistung - df$type_mode_leistung
+df$newLeistung<- df$newLeistung - df$leistung_deviation_mode
 
 
 # Step 5: Impute the rest missing on type and Kraftstoff only --------------
@@ -127,6 +127,13 @@ df<- df[,`:=`(newLeistung = replace(newLeistung, is.na(newLeistung)==T, Mode(new
                                     by=.(Typ, Kraftstoff)]
 
 
+# drop unnecessary variables ----------------------------------------------
+
+irrelCols<- c("Count", "type_mode_leistung", "leistung_deviation_mode")
+df[, irrelCols]<- NULL
+
+# Save data ---------------------------------------------------------------
+save(df, file="df_full2007.RData")
 
 # End ---------------------------------------------------------------------
 
