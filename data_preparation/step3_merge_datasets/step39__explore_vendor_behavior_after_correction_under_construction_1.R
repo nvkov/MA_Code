@@ -13,7 +13,7 @@ library("data.table")
 library("stringr")
 
 #Read files with car specifications:
-load("Merged_data/df_merge_after_step32.RData")
+load("Merged_data/df_merge_after_step38.RData")
 
 ###########################################################################
 
@@ -73,9 +73,10 @@ vendors<- vendors[,`:=`(leasing=.N,
                               Leistung, Eigenschaften, cars_lastChange)]
 
 
+
 # Save vendor data --------------------------------------------------------
 
-save(vendors, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Vendors/vendor_behavior.Rdata")
+save(vendors, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Vendors/step39_vendor_behavior.Rdata")
 
 
 

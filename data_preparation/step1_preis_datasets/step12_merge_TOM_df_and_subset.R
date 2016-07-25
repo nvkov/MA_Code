@@ -15,6 +15,8 @@ print("Number of unique carID/price combinations before subsetting")
 nrow(tomdf)
 sink()
 
+
+# Remove cars with prices in Zloty: ---------------------------------------
 tomdf<-tomdf[!grep("PLN", tomdf$Bemerkung),]
 setnames(tomdf, "MobileID", "car_ID")
 tomdf$Bemerkung<-NULL
