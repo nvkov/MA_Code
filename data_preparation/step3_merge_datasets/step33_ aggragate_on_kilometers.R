@@ -30,7 +30,7 @@ df_merge$km_change[is.na(df_merge$km_change)]<- 0
 
 df_merge$Kilometer[df_merge$km_change>100000]<- df_merge$Kilometer[df_merge$km_change>100000]-df_merge$km_change[df_merge$km_change>100000]
 
-#Return value for overcorrecter kilometers:
+#Return value for overcorrected kilometers:
 View(df_merge[df_merge$km_change>100000 &df_merge$Kilometer<10000,])
 df_merge$Kilometer[df_merge$km_change>100000 &df_merge$Kilometer<10000]<- df_merge$Kilometer[df_merge$km_change>100000 &df_merge$Kilometer<10000] + df_merge$km_change[df_merge$km_change>100000 &df_merge$Kilometer<10000]
 
@@ -40,7 +40,8 @@ df_merge$Kilometer[df_merge$km_change>100000 &df_merge$Kilometer<10000]<- df_mer
 #residuals<- resid(price_mod)
 #plot(df_merge$Kilometer[!is.na(df_merge$Kilometer)], residuals)
 
-#Aggregate on color:
+
+# Aggregate of color: -----------------------------------------------------
 df_merge<- df_merge[,.(Farbe=max(Farbe), farbe_check= paste(Farbe, collapse = ","), varFar= var(Farbe),
                        cars_lastChange=min(cars_lastChange), cars_lastDate=max(cars_lastDate)),
                     by=.(car_ID, valuePrice, TOM, prices_firstDate, prices_lastDate, 
@@ -48,10 +49,15 @@ df_merge<- df_merge[,.(Farbe=max(Farbe), farbe_check= paste(Farbe, collapse = ",
                          Erstzulassung, Emission, Kraftstoff, 
                          Leistung, Schaltung, Klimatisierung, Hubraum, vendor_ID, Eigenschaften)]
 
+
+
 #Often the colors are changed several times 
 #(e.g. beige metalic to gold metalic, gray metalic to silver metalic)
+View(df_merge[df_merge$varFar>0,])
+# CarID: 29124571
 
-#Aggregate on class:
+# Aggregate on class ------------------------------------------------------
+
 
 df_merge<- df_merge[,.(Kategorie=max(Kategorie), Kategorie_check= paste(Kategorie, collapse = ","), varKat= var(Kategorie),
                        cars_lastChange=min(cars_lastChange), cars_lastDate=max(cars_lastDate)),
@@ -59,7 +65,6 @@ df_merge<- df_merge[,.(Kategorie=max(Kategorie), Kategorie_check= paste(Kategori
                          Anzeigenanlage, Typ, Farbe,Kilometer, HU, 
                          Erstzulassung, Emission, Kraftstoff, 
                          Leistung, Schaltung, Klimatisierung, Hubraum, vendor_ID, Eigenschaften)]
-
 
 
 

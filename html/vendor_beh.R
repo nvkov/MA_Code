@@ -64,7 +64,7 @@ vendors<- vendors[,`:=`(vendorID_pool=paste(unique(vendor_ID), collapse = ", "),
 
 #Subcase 2: Vendors uploading information sequentially from several accounts:
 
-View(vendors[vendors$n_unique_changes_vendor_pool==343,])
+(vendors[vendors$n_unique_changes_vendor_pool==343,])
 
 
 # Behavior 3: Vendors changing specs: -------------------------------------------------
@@ -83,7 +83,7 @@ vendors<- vendors[,`:=`(n_changes_total=.N,
 
 #Examples:
 
-View(vendors[vendors$car_ID=="221099", ])
+(vendors[vendors$car_ID=="221099", ])
 
 
 # Behavior 4: Vendors chaging specs and car IDs-----------------------------------------------
@@ -104,165 +104,165 @@ vendors<- vendors[,`:=`(monotonicity_check=max(price_monotonicity)),
 #Examples:
 
 
-#  Behavior 5: Vendors with leasing offers ---------------------------------------------
+# #  Behavior 5: Vendors with leasing offers ---------------------------------------------
+# 
+# vendors<- vendors[,`:=`(leasing_cars=length(unique(car_ID))), 
+#                         by=.(Typ, Erstzulassung, Schaltung, 
+#                        Leistung, Eigenschaften, prices_firstDate, vendor_ID, Farbe)]
+# 
 
-vendors<- vendors[,`:=`(leasing_cars=length(unique(car_ID))), 
-                        by=.(Typ, Erstzulassung, Schaltung, 
-                       Leistung, Eigenschaften, prices_firstDate, vendor_ID, Farbe)]
-
-
-
-# Save data ---------------------------------------------------------------
-
-save(vendors, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/vendor_behavior_before_data_clean.RData")
-load("C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/vendor_behavior_before_data_clean.RData")
-
-# Factor analysis for vendor behavior --------------------------------------------------
-
-factor_vars<- c("vendor_ID",
-                "car_ID",
-                #Behavior 1:
-                "n_carID_pool",
-                
-                #Behavior 2:
-                "n_unique_changes_vendor_pool",
-                
-                #Behavior 3:
-                "n_unique_changes_price",
-                "n_unique_changes_km",
-                "n_unique_changes_Hubraum",
-                "n_unique_changes_Klimatisierung",
-                "n_unique_changes_Leistung",
-                "n_unique_changes_HU", 
-                "n_unique_changes_Eigenschaften",
-                
-                #Behavior 4:
-                "similar_cars_diff_IDs",
-                
-                #Behavior 5:
-                "leasing_cars"
-)
-
-vendors<- vendors[,factor_vars, with=F]
-
-# Determine Number of Factors to Extract
-library(nFactors)
-ev <- eigen(cor(vendors[,-c(1), with=F])) # get eigenvalues
-ap <- parallel(subject=nrow(vendors[,-c(1), with=F]),var=ncol(vendors[,-c(1), with=F]),
-               rep=10,cent=.05)
-nS <- nScree(x=ev$values, aparallel=ap$eigen$qevpea)
-plotnScree(nS)
-
-# According to scree plot  -> 5 behaviors can be distinguished: 
-# => Perform factor analysis with 5 factors
-
-fit1 <- factanal(vendors[,-c(1), with=F], 4, rotation="varimax")
-print(fit1, digits=2, cutoff=.3, sort=TRUE)
-
-#Cluster vendor_IDs:
-
-# Cluster vendor_IDs ------------------------------------------------------
-
-vendors_cluster<- vendors[, .(n_carID_pool=max(n_carID_pool),
-                          
-                          #Behavior 2:
-                          n_unique_changes_vendor_pool=max(n_unique_changes_vendor_pool),
-                          
-                          #Behavior 3:
-                          n_unique_changes_price=max(n_unique_changes_price),
-                          n_unique_changes_km=max(n_unique_changes_km),
-                          n_unique_changes_Hubraum=max(n_unique_changes_Hubraum),
-                          n_unique_changes_Klimatisierung=max(n_unique_changes_Klimatisierung),
-                          n_unique_changes_Leistung= max(n_unique_changes_Leistung),
-                          n_unique_changes_HU= max(n_unique_changes_HU), 
-                          n_unique_changes_Eigenschaften=max(n_unique_changes_Eigenschaften),
-                          
-                          #Behavior 4:
-                          similar_cars_diff_IDs=max(similar_cars_diff_IDs),
-                          
-                          #Behavior 5:
-                          leasing_cars=max(similar_cars_diff_IDs))
-
-                          , by=.(vendor_ID)]
-
-#Cluster vendors:
-
-#Extract number of clusters:
-wss <- (nrow(vendors_cluster[,-c(1),with=F])-1)*sum(apply(vendors_cluster[,-c(1),with=F],2,var))
-for (i in 2:15) wss[i] <- sum(kmeans(vendors_cluster[,-c(1),with=F], 
-                                     centers=i)$withinss)
-plot(1:15, wss, type="b", xlab="Number of Clusters",
-     ylab="Within groups sum of squares")
-
-
-
-fit <- kmeans(scale(vendors_cluster[,-c(1),with=F]), 5) # 5 cluster solution
-# get cluster means 
-aggregate(vendors_cluster[,-c(1),with=F],by=list(fit$cluster),FUN=mean)
-# append cluster assignment
-vendors_cluster <- cbind(vendors_cluster, fit$cluster)
-
-
-#Plot cluster:
-
-# vary parameters for most readable graph
-library(cluster) 
-clusplot(vendors_cluster[,-c(1),with=F], fit$cluster, color=TRUE, shade=TRUE, 
-         labels=2, lines=0)
-
-# Centroid Plot against 1st 2 discriminant functions
-library(fpc)
-plotcluster(vendors_cluster[,-c(1),with=F], fit$cluster)
-
-
-# Cluster car_IDs ---------------------------------------------------------
-
-cars_cluster<- vendors[, .(n_carID_pool=max(n_carID_pool),
-                           
-                           #Behavior 2:
-                           n_unique_changes_vendor_pool=max(n_unique_changes_vendor_pool),
-                           
-                           #Behavior 3:
-                           n_unique_changes_price=max(n_unique_changes_price),
-                           n_unique_changes_km=max(n_unique_changes_km),
-                           n_unique_changes_Hubraum=max(n_unique_changes_Hubraum),
-                           n_unique_changes_Klimatisierung=max(n_unique_changes_Klimatisierung),
-                           n_unique_changes_Leistung= max(n_unique_changes_Leistung),
-                           n_unique_changes_HU= max(n_unique_changes_HU), 
-                           n_unique_changes_Eigenschaften=max(n_unique_changes_Eigenschaften),
-                           
-                           #Behavior 4:
-                           similar_cars_diff_IDs=max(similar_cars_diff_IDs),
-                           
-                           #Behavior 5:
-                           leasing_cars=max(similar_cars_diff_IDs))
-                       
-                       , by=.(car_ID)]
-
-#Extract number of clusters:
-wss <- (nrow(cars_cluster[,-c(1),with=F])-1)*sum(apply(cars_cluster[,-c(1),with=F],2,var))
-for (i in 2:15) wss[i] <- sum(kmeans(cars_cluster[,-c(1),with=F], 
-                                     centers=i)$withinss)
-plot(1:15, wss, type="b", xlab="Number of Clusters",
-     ylab="Within groups sum of squares")
-
-
-
-fit <- kmeans(scale(cars_cluster[,-c(1),with=F]), 5) # 5 cluster solution
-# get cluster means 
-aggregate(cars_cluster[,-c(1),with=F],by=list(fit$cluster),FUN=mean)
-# append cluster assignment
-cars_cluster <- cbind(cars_cluster, fit$cluster)
-
-
-#Plot cluster:
-
-# vary parameters for most readable graph
-library(cluster) 
-clusplot(vendors_cluster[,-c(1),with=F], fit$cluster, color=TRUE, shade=TRUE, 
-         labels=2, lines=0)
-
-# Centroid Plot against 1st 2 discriminant functions
-library(fpc)
-plotcluster(vendors_cluster[,-c(1),with=F], fit$cluster)
+# 
+# # Save data ---------------------------------------------------------------
+# 
+# save(vendors, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/vendor_behavior_before_data_clean.RData")
+# load("C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/vendor_behavior_before_data_clean.RData")
+# 
+# # Factor analysis for vendor behavior --------------------------------------------------
+# 
+# factor_vars<- c("vendor_ID",
+#                 "car_ID",
+#                 #Behavior 1:
+#                 "n_carID_pool",
+#                 
+#                 #Behavior 2:
+#                 "n_unique_changes_vendor_pool",
+#                 
+#                 #Behavior 3:
+#                 "n_unique_changes_price",
+#                 "n_unique_changes_km",
+#                 "n_unique_changes_Hubraum",
+#                 "n_unique_changes_Klimatisierung",
+#                 "n_unique_changes_Leistung",
+#                 "n_unique_changes_HU", 
+#                 "n_unique_changes_Eigenschaften",
+#                 
+#                 #Behavior 4:
+#                 "similar_cars_diff_IDs",
+#                 
+#                 #Behavior 5:
+#                 "leasing_cars"
+# )
+# 
+# vendors<- vendors[,factor_vars, with=F]
+# 
+# # Determine Number of Factors to Extract
+# library(nFactors)
+# ev <- eigen(cor(vendors[,-c(1), with=F])) # get eigenvalues
+# ap <- parallel(subject=nrow(vendors[,-c(1), with=F]),var=ncol(vendors[,-c(1), with=F]),
+#                rep=10,cent=.05)
+# nS <- nScree(x=ev$values, aparallel=ap$eigen$qevpea)
+# plotnScree(nS)
+# 
+# # According to scree plot  -> 5 behaviors can be distinguished: 
+# # => Perform factor analysis with 5 factors
+# 
+# fit1 <- factanal(vendors[,-c(1), with=F], 4, rotation="varimax")
+# print(fit1, digits=2, cutoff=.3, sort=TRUE)
+# 
+# #Cluster vendor_IDs:
+# 
+# # Cluster vendor_IDs ------------------------------------------------------
+# 
+# vendors_cluster<- vendors[, .(n_carID_pool=max(n_carID_pool),
+#                           
+#                           #Behavior 2:
+#                           n_unique_changes_vendor_pool=max(n_unique_changes_vendor_pool),
+#                           
+#                           #Behavior 3:
+#                           n_unique_changes_price=max(n_unique_changes_price),
+#                           n_unique_changes_km=max(n_unique_changes_km),
+#                           n_unique_changes_Hubraum=max(n_unique_changes_Hubraum),
+#                           n_unique_changes_Klimatisierung=max(n_unique_changes_Klimatisierung),
+#                           n_unique_changes_Leistung= max(n_unique_changes_Leistung),
+#                           n_unique_changes_HU= max(n_unique_changes_HU), 
+#                           n_unique_changes_Eigenschaften=max(n_unique_changes_Eigenschaften),
+#                           
+#                           #Behavior 4:
+#                           similar_cars_diff_IDs=max(similar_cars_diff_IDs),
+#                           
+#                           #Behavior 5:
+#                           leasing_cars=max(similar_cars_diff_IDs))
+# 
+#                           , by=.(vendor_ID)]
+# 
+# #Cluster vendors:
+# 
+# #Extract number of clusters:
+# wss <- (nrow(vendors_cluster[,-c(1),with=F])-1)*sum(apply(vendors_cluster[,-c(1),with=F],2,var))
+# for (i in 2:15) wss[i] <- sum(kmeans(vendors_cluster[,-c(1),with=F], 
+#                                      centers=i)$withinss)
+# plot(1:15, wss, type="b", xlab="Number of Clusters",
+#      ylab="Within groups sum of squares")
+# 
+# 
+# 
+# fit <- kmeans(scale(vendors_cluster[,-c(1),with=F]), 5) # 5 cluster solution
+# # get cluster means 
+# aggregate(vendors_cluster[,-c(1),with=F],by=list(fit$cluster),FUN=mean)
+# # append cluster assignment
+# vendors_cluster <- cbind(vendors_cluster, fit$cluster)
+# 
+# 
+# #Plot cluster:
+# 
+# # vary parameters for most readable graph
+# library(cluster) 
+# clusplot(vendors_cluster[,-c(1),with=F], fit$cluster, color=TRUE, shade=TRUE, 
+#          labels=2, lines=0)
+# 
+# # Centroid Plot against 1st 2 discriminant functions
+# library(fpc)
+# plotcluster(vendors_cluster[,-c(1),with=F], fit$cluster)
+# 
+# 
+# # Cluster car_IDs ---------------------------------------------------------
+# 
+# cars_cluster<- vendors[, .(n_carID_pool=max(n_carID_pool),
+#                            
+#                            #Behavior 2:
+#                            n_unique_changes_vendor_pool=max(n_unique_changes_vendor_pool),
+#                            
+#                            #Behavior 3:
+#                            n_unique_changes_price=max(n_unique_changes_price),
+#                            n_unique_changes_km=max(n_unique_changes_km),
+#                            n_unique_changes_Hubraum=max(n_unique_changes_Hubraum),
+#                            n_unique_changes_Klimatisierung=max(n_unique_changes_Klimatisierung),
+#                            n_unique_changes_Leistung= max(n_unique_changes_Leistung),
+#                            n_unique_changes_HU= max(n_unique_changes_HU), 
+#                            n_unique_changes_Eigenschaften=max(n_unique_changes_Eigenschaften),
+#                            
+#                            #Behavior 4:
+#                            similar_cars_diff_IDs=max(similar_cars_diff_IDs),
+#                            
+#                            #Behavior 5:
+#                            leasing_cars=max(similar_cars_diff_IDs))
+#                        
+#                        , by=.(car_ID)]
+# 
+# #Extract number of clusters:
+# wss <- (nrow(cars_cluster[,-c(1),with=F])-1)*sum(apply(cars_cluster[,-c(1),with=F],2,var))
+# for (i in 2:15) wss[i] <- sum(kmeans(cars_cluster[,-c(1),with=F], 
+#                                      centers=i)$withinss)
+# plot(1:15, wss, type="b", xlab="Number of Clusters",
+#      ylab="Within groups sum of squares")
+# 
+# 
+# 
+# fit <- kmeans(scale(cars_cluster[,-c(1),with=F]), 5) # 5 cluster solution
+# # get cluster means 
+# aggregate(cars_cluster[,-c(1),with=F],by=list(fit$cluster),FUN=mean)
+# # append cluster assignment
+# cars_cluster <- cbind(cars_cluster, fit$cluster)
+# 
+# 
+# #Plot cluster:
+# 
+# # vary parameters for most readable graph
+# library(cluster) 
+# clusplot(vendors_cluster[,-c(1),with=F], fit$cluster, color=TRUE, shade=TRUE, 
+#          labels=2, lines=0)
+# 
+# # Centroid Plot against 1st 2 discriminant functions
+# library(fpc)
+# plotcluster(vendors_cluster[,-c(1),with=F], fit$cluster)
 

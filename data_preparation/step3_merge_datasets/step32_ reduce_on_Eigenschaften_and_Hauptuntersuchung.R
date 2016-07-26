@@ -17,6 +17,9 @@ df_merge$HU<-as.numeric(gsub("/", "", df_merge$HU))
 
 #Reduce HU:
 
+# Reduce HU ---------------------------------------------------------------
+
+
 df_merge<- df_merge[ , .(cars_lastChange=min(cars_lastChange), 
                          cars_lastDate=max(cars_lastDate), HU=max(HU), 
                          newHU= paste(HU, collapse=","),
@@ -35,12 +38,16 @@ View(df_merge[df_merge$vendor_ID %in% df_merge$vendor_ID[df_merge$varHU>0]])
 df_merge$newHU<- NULL
 df_merge$varHU<- NULL
 
+
+# Reduce Leistung ---------------------------------------------------------
+
 df_merge<- df_merge[ , .(cars_lastChange=min(cars_lastChange), 
                          cars_lastDate=max(cars_lastDate), Leistung=max(Leistung), 
                          newLe= paste(Leistung, collapse=","),
                          varLe= var(Leistung, na.rm=T) , rows=.N), 
+                     
                      by=.(car_ID, valuePrice, TOM, prices_firstDate, prices_lastDate, 
-                          Anzeigenanlage, Typ, Kategorie,Farbe, Kilometer, 
+                          Anzeigenanlage, Typ, Kategorie, Farbe, Kilometer, 
                           Erstzulassung, Emission, Kraftstoff, 
                           HU, Schaltung, Klimatisierung, Hubraum, Eigenschaften, vendor_ID)]
 
@@ -55,10 +62,14 @@ df_merge$Leistung<- gsub(",", "", df_merge$Leistung)
 df_merge$newLe<- NULL
 df_merge$varLe<- NULL
 
+# Reduce Emission ---------------------------------------------------------
+
+
 df_merge<- df_merge[ , .(cars_lastChange=min(cars_lastChange), 
                          cars_lastDate=max(cars_lastDate), Emission=max(Emission), 
                          newEm= paste(Emission, collapse=","),
                          varEm= var(Emission, na.rm=T) , rows=.N), 
+                     
                      by=.(car_ID, valuePrice, TOM, prices_firstDate, prices_lastDate, 
                           Anzeigenanlage, Typ, Kategorie,Farbe, Kilometer, 
                           Erstzulassung, Leistung, Kraftstoff, 
@@ -66,10 +77,14 @@ df_merge<- df_merge[ , .(cars_lastChange=min(cars_lastChange),
 
 df_merge$Emission<- str_sub(df_merge$newEm, start= -2)
 
+
+# Reduce Hubraum ----------------------------------------------------------
+
 df_merge<- df_merge[ , .(cars_lastChange=min(cars_lastChange), 
                          cars_lastDate=max(cars_lastDate), Hubraum=max(Hubraum), 
                          newHubraum= paste(Hubraum, collapse=","),
                          varHubraum= var(Hubraum, na.rm=T) , rows=.N), 
+                     
                      by=.(car_ID, valuePrice, TOM, prices_firstDate, prices_lastDate, 
                           Anzeigenanlage, Typ, Kategorie,Farbe, Kilometer, 
                           Erstzulassung, Leistung, Kraftstoff, 
