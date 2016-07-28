@@ -39,18 +39,8 @@ double_vendors<- df_merge[df_merge$howMany>1,]
 doubled_car_IDs<- double_vendors$car_ID
 doubled_vendor_IDs<- double_vendors$vendor_ID
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 save(double_vendors, file=paste0(project_directory, data_directory, "Merged_data/double_vendors_after_step34.RData" ))
 
-
-=======
->>>>>>> 37d68dd1a0435910389c69430ee874f1ae8afad4
-=======
-save(double_vendors, file=paste0(project_directory, data_directory, "Merged_data/double_vendors_after_step34.RData" ))
-
-
->>>>>>> c26894f6cac69b4faf30e05b1b2ca3df639ee717
 save(doubled_car_IDs, file=paste0(project_directory, data_directory, "Merged_data/doubled_car_IDs_after_step34.RData" ))
 save(doubled_vendor_IDs, file=paste0(project_directory, data_directory, "Merged_data/doubled_vendor_IDs_after_step34.RData" ))
 
@@ -58,12 +48,4 @@ doubled_vendors_vec<- paste(doubled_vendor_IDs, collapse=",")
 unique_doubled_vendors_vec<- unlist(strsplit(doubled_vendors_vec, ","))
 unique_doubled_vendors_vec<- sort(unique(as.numeric(unique_doubled_vendors_vec)))
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 save(unique_doubled_vendors_vec, file=paste0(project_directory, data_directory, "Merged_data/unique_doubled_vendor_IDs_vec_after_step34.RData" ))
-=======
-save(doubled_vendors_vec, file=paste0(project_directory, data_directory, "Merged_data/doubled_vendor_IDs_vec_after_step34.RData" ))
->>>>>>> 37d68dd1a0435910389c69430ee874f1ae8afad4
-=======
-save(unique_doubled_vendors_vec, file=paste0(project_directory, data_directory, "Merged_data/unique_doubled_vendor_IDs_vec_after_step34.RData" ))
->>>>>>> c26894f6cac69b4faf30e05b1b2ca3df639ee717

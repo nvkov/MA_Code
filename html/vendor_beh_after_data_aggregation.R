@@ -3,7 +3,7 @@ rm(list=ls())
 library("stringi")
 library("data.table")
 
-load("C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/df_merge_after_step38.RData")
+load("C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/df_merge_after_step37.RData")
 
 #load("Merged_data/df_merge_after_step32.RData")
 
@@ -89,7 +89,7 @@ View(vendors[vendors$car_ID=="221099", ])
 # Behavior 4: Vendors chaging specs and car IDs-----------------------------------------------
 
 vendors<- vendors[,`:=`(similar_cars_diff_IDs=length(unique(car_ID)), 
-                        monotonicity= shift(valuePrice, 1, NA, "lag")),
+                        monotonicity= data.table::shift(valuePrice, 1, NA, "lag")),
                   by=.(Typ, Erstzulassung, Schaltung, 
                        Leistung, Eigenschaften, vendor_ID, Farbe)]
 
@@ -115,7 +115,7 @@ vendors<- vendors[,`:=`(leasing_cars=length(unique(car_ID))),
 # Save data ---------------------------------------------------------------
 
 save(vendors, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/vendor_behavior_after_data_clean.RData")
-#load("C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/vendor_behavior_after_data_clean.RData")
+load("C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/vendor_behavior_after_data_clean.RData")
 
 # Factor analysis for vendor behavior --------------------------------------------------
 

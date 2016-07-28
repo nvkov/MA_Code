@@ -55,6 +55,7 @@ df_merge<- df_merge[,.(Farbe=max(Farbe), farbe_check= paste(Farbe, collapse = ",
 #(e.g. beige metalic to gold metalic, gray metalic to silver metalic)
 View(df_merge[df_merge$varFar>0,])
 # CarID: 29124571
+print(df_merge[car_ID=="29124571", c("car_ID", "Farbe", "Typ", "Erstzulassung"), with=F])
 
 # Aggregate on class ------------------------------------------------------
 

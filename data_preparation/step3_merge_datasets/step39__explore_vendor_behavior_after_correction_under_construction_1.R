@@ -13,7 +13,7 @@ library("data.table")
 library("stringr")
 
 #Read files with car specifications:
-load("Merged_data/df_merge_after_step38.RData")
+load("Merged_data/df_merge_after_step37.RData")
 
 ###########################################################################
 
