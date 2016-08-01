@@ -19,6 +19,8 @@ vendors<- vendors[car_ID_pool>1,
                        KM_lag=data.table::shift(Kilometer, 1, NA, "lag")),
                   by=.(valuePrice, car_ID, vendor_ID, Typ)]
 
+vendors$KM_lag[is.na(vendors$KM_lag)]<-vendors$Kilometer[is.na(vendors$KM_lag)] 
+vendors$KM_monotonicity= vendors$Kilometer-vendors$KM_lag
 
 
 vendors<- vendors[n_unique_changes_price==1 & n_changes_total>1,
@@ -32,8 +34,6 @@ vendors<- vendors[car_ID_pool>1,
                   
                   by=.(valuePrice, car_ID, vendor_ID, Typ)]
 
-vendors$KM_lag[is.na(vendors$KM_lag)]<-vendors$Kilometer[is.na(vendors$KM_lag)] 
-vendors$KM_monotonicity= vendors$Kilometer-vendors$KM_lag
 
 # Key numbers -------------------------------------------------------------
 
@@ -47,6 +47,11 @@ nrow(vendors[vendors$car_ID_pool>1,])
 vendors[!is.na(vendors$firstDate) & vendors$lastDate!=vendors$cars_lastDate,]<- NA 
 vendors<- vendors[!is.na(vendors$vendor_ID),]
 vendors$cars_lastChange[!is.na(vendors$firstDate)]<- vendors$firstDate[!is.na(vendors$firstDate)]
+
+
+# Keep only realistic observations for car ID pool ------------------------
+vendors[car_ID_pool>1 & cars_lastDate> prices_firstDate]<- NA
+vendors<- vendors[!is.na(vendors$vendor_ID),]
 
 
 # Look at car ID pools ----------------------------------------------------
@@ -75,6 +80,7 @@ vendors_carID_pool<- vendors_carID_pool[ ,`:=`(firstDate=min(cars_lastChange),
                                           by=.(valuePrice, car_ID, Typ)]
 
 
+vendors_carID_pool<- vendors_carID_pool[prices_firstDate>=cars_lastDate,]
 
 # Save dataset ------------------------------------------------------------
 
