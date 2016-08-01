@@ -85,6 +85,6 @@ vendors_carID_pool<- vendors_carID_pool[prices_firstDate>=cars_lastDate,]
 # Save dataset ------------------------------------------------------------
 
 
-save(vendors_carID_pool, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/carIDpool.RData")
-save(vendors, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/df_merge_after_step310.RData")
+#save(vendors_carID_pool, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/carIDpool.RData")
+save(vendors, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/df_merge_after_step38.RData")
 
