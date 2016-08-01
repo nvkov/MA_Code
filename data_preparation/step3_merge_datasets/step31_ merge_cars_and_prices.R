@@ -54,8 +54,6 @@ df_merge<- subset(df_merge, df_merge$prices_firstDate<=df_merge$cars_lastDate
 # Split df_merge in first time prices with no further changes and cars with price and car changes:
 
 
-
-
 setwd(project_directory)
 sink("merged_data_descriptive_statistics.txt", append=T)
 print("Number of rows after left join for cars_df and subset for realistic dates")

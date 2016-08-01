@@ -7,14 +7,15 @@ library("survival")
 
 #Set working directory
 project_directory<- "C:/Users/Nk/Documents/Uni/MA"
-data_directory<-"/Pkw/MobileDaten/generatedData/final_dataset/"
+data_directory<-"/Pkw/MobileDaten/generatedData/Merged_data/"
 
 wd<- paste0(project_directory, data_directory)
 setwd(wd)
 
 #Load dataset:
-load("df_full2007.RData")
-
+load("df_merge_after_step38.RData")
+df<- vendors
+rm(vendors)
 
 # Load Mode function ------------------------------------------------------
 
@@ -133,7 +134,7 @@ irrelCols<- c("Count", "type_mode_leistung", "leistung_deviation_mode")
 df[, irrelCols]<- NULL
 
 # Save data ---------------------------------------------------------------
-save(df, file="df_full2007.RData")
+save(df, file="df_merge_after_step41.RData")
 
 # End ---------------------------------------------------------------------
 

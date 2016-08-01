@@ -34,6 +34,7 @@ View(df_merge[df_merge$leasing_count>1,])
 
 leasing_cars<- df_merge[leasing_count>1 ,c("car_ID", "leasing_count", "rangeLeasing"),with=F]
 
+
 save(leasing_cars,
      file=paste0(project_directory, 
                  data_directory,

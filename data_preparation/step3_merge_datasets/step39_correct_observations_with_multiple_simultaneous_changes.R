@@ -3,7 +3,7 @@ rm(list=ls())
 library("stringi")
 library("data.table")
 
-load("C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/vendor_behavior_after_data_clean.RData")
+load("C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/df_merge_after_step38.RData")
 
 
 vendors<- vendors[n_unique_changes_price==1 & n_changes_total>1,
@@ -56,35 +56,36 @@ vendors<- vendors[!is.na(vendors$vendor_ID),]
 
 # Look at car ID pools ----------------------------------------------------
 
-# Select only vendors with repeating prices:
-vendors_carID_pool<- vendors[vendors$car_ID_pool>1,]
-vendors_carID_pool<- vendors_carID_pool[,duplics:=.N,
-                                        by=.(valuePrice, car_ID)]
-
-vendors_carID_pool<- vendors_carID_pool[,diff_types:=length(unique(Typ)),
-                                        by=.(valuePrice, car_ID, Typ)]
-
-vendors_carID_pool<- vendors_carID_pool[,diff_Erstzulassung:=length(unique(Erstzulassung)),
-                                        by=.(valuePrice, car_ID, Typ)]
-
-vendors_carID_pool<- vendors_carID_pool[,rows:=.N,
-                                        by=.(valuePrice, car_ID, Typ)] 
-
-
-vendors_carID_pool<- vendors_carID_pool[vendors_carID_pool$duplics>1,]
-
-
-vendors_carID_pool<- vendors_carID_pool[ ,`:=`(firstDate=min(cars_lastChange), 
-                                            lastDate=max(cars_lastDate),
-                                            KM_lag=data.table::shift(Kilometer, 1, NA, "lag")),
-                                          by=.(valuePrice, car_ID, Typ)]
-
-
-vendors_carID_pool<- vendors_carID_pool[prices_firstDate>=cars_lastDate,]
-
+# # Select only vendors with repeating prices:
+# vendors_carID_pool<- vendors[vendors$car_ID_pool>1,]
+# vendors_carID_pool<- vendors_carID_pool[,duplics:=.N,
+#                                         by=.(valuePrice, car_ID)]
+# 
+# vendors_carID_pool<- vendors_carID_pool[,diff_types:=length(unique(Typ)),
+#                                         by=.(valuePrice, car_ID, Typ)]
+# 
+# vendors_carID_pool<- vendors_carID_pool[,diff_Erstzulassung:=length(unique(Erstzulassung)),
+#                                         by=.(valuePrice, car_ID, Typ)]
+# 
+# vendors_carID_pool<- vendors_carID_pool[,rows:=.N,
+#                                         by=.(valuePrice, car_ID, Typ)] 
+# 
+# 
+# vendors_carID_pool<- vendors_carID_pool[vendors_carID_pool$duplics>1,]
+# 
+# 
+# vendors_carID_pool<- vendors_carID_pool[ ,`:=`(firstDate=min(cars_lastChange), 
+#                                             lastDate=max(cars_lastDate),
+#                                             KM_lag=data.table::shift(Kilometer, 1, NA, "lag")),
+#                                           by=.(valuePrice, car_ID, Typ)]
+# 
+# 
+# vendors_carID_pool<- vendors_carID_pool[prices_firstDate>=cars_lastDate,]
+# 
+# vendors
 # Save dataset ------------------------------------------------------------
 
 
 #save(vendors_carID_pool, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/carIDpool.RData")
-save(vendors, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/df_merge_after_step38.RData")
+save(vendors, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/df_merge_after_step39.RData")
 

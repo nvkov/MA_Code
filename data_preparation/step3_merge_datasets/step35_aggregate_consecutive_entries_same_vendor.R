@@ -48,8 +48,8 @@ df_merge<- df_merge[varCar>0,
                          Emission, Kraftstoff, Leistung, Schaltung, Klimatisierung, 
                          Hubraum, Eigenschaften, Kilometer)]
 
-overlaps<- df_merge[df_merge$overlaps>1,]
-df_merge<- df_merge[df_merge$overlaps<2 | is.na(df_merge$overlaps),]
+overlaps<- df_merge[df_merge$overlaps>2,]
+df_merge<- df_merge[df_merge$overlaps<3 | is.na(df_merge$overlaps),]
 
 
 # Aggregate grouped observations ------------------------------------------
@@ -69,10 +69,6 @@ df_merge<- df_merge[, .(car_ID=max(car_ID),
                           Hubraum, Eigenschaften, Kilometer)]
 
 
-
-######################
-#Look at overlaps:
-#source("http://bioconductor.org/biocLite.R")
 
 ######################
 

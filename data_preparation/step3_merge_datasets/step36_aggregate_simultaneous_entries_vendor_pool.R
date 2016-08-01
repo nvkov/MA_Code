@@ -36,42 +36,6 @@ df_merge<- df_merge[, `:=`(#length_merged_car=length(unique(car_ID)),
                          Hubraum, Eigenschaften, Kilometer, prices_firstDate)]
 
 # # See if merge is correct -------------------------------------------------
-# # Check if observtaions from one group overlap:
-# 
-# df_merge<- df_merge[varCar>0, 
-#                     overlaps:= countOverlaps(IRanges(as.numeric(prices_firstDate), as.numeric(prices_lastDate)), 
-#                                              IRanges(as.numeric(prices_firstDate), as.numeric(prices_lastDate))),
-#                     
-#                     by=.(vendor_ID, valuePrice,  
-#                          Typ, Kategorie, Farbe, HU, Erstzulassung, 
-#                          Emission, Kraftstoff, Leistung, Schaltung, Klimatisierung, 
-#                          Hubraum, Eigenschaften, Kilometer)]
-# 
-# overlaps<- df_merge[df_merge$overlaps>1,]
-# df_merge<- df_merge[df_merge$overlaps<2 | is.na(df_merge$overlaps),]
-
-
-# Aggregate grouped observations ------------------------------------------
-# 
-# df_merge<- df_merge[, .(car_ID=max(car_ID), 
-#                          prices_firstDate=min(prices_firstDate), 
-#                          prices_lastDate=max(prices_lastDate),
-#                          TOM= sum(TOM), 
-#                          cars_lastChange=min(cars_lastChange),
-#                          cars_lastDate=max(cars_lastDate),
-#                          Anzeigenanlage=min(Anzeigenanlage),
-#                          rows=.N),
-#                      
-#                      by=.(vendor_ID, valuePrice,  
-#                           Typ, Kategorie, Farbe, HU, Erstzulassung, 
-#                           Emission, Kraftstoff, Leistung, Schaltung, Klimatisierung, 
-#                           Hubraum, Eigenschaften, Kilometer)]
-# 
-
-
-######################
-#Look at overlaps:
-#source("http://bioconductor.org/biocLite.R")
 
 ######################
 
