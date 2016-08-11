@@ -40,5 +40,18 @@ save(leasing_cars,
                  data_directory,
                  file="Merged_data/list_of_leasing_cars_after_step34.RData"))
 
-#save(df_merge, file=paste0(project_directory, data_directory, "Merged_data/df_merge_after_step34.RData" ))
+
+# Correct for car_ID_pools ------------------------------------------------
+
+#Find carID pools:
+df_merge<- df_merge[,carID_pool:=length(unique(Typ)), by=.(car_ID, Farbe, Kategorie)]
+
+#Erase unrealistic matches:
+df_merge[df_merge$carID_pool>1 & df_merge$cars_lastDate> df_merge$prices_firstDate,]<-NA
+
+#Keep only realistic data:
+df_merge<- df_merge[!is.na(df_merge$vendor_ID),]
+
+
+save(df_merge, file=paste0(project_directory, data_directory, "Merged_data/df_merge_after_step34.RData" ))
 

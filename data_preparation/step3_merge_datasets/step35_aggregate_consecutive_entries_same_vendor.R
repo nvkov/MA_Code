@@ -16,7 +16,7 @@ library(IRanges)
 
 
 #Read files with car specifications:
-load("Merged_data/df_merge_after_step33.RData")
+load("Merged_data/df_merge_after_step34.RData")
 load("Merged_data/list_of_leasing_cars_after_step34.RData")
 
 # Subset for leasing cars -------------------------------------------------

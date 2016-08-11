@@ -13,14 +13,14 @@ vendors<- vendors[n_unique_changes_price==1 & n_changes_total>1,
                     by=.(valuePrice, car_ID, vendor_ID, Erstzulassung, 
                          Typ, prices_firstDate, prices_lastDate, Farbe)]
 
-vendors<- vendors[car_ID_pool>1,
+vendors<- vendors[n_carID_pool>1,
                   `:=`(firstDate=min(cars_lastChange), 
                        lastDate=max(cars_lastDate),
                        KM_lag=data.table::shift(Kilometer, 1, NA, "lag")),
                   by=.(valuePrice, car_ID, vendor_ID, Typ)]
 
 vendors$KM_lag[is.na(vendors$KM_lag)]<-vendors$Kilometer[is.na(vendors$KM_lag)] 
-vendors$KM_monotonicity= vendors$Kilometer-vendors$KM_lag
+vendors$KM_monotonicity<- vendors$Kilometer-vendors$KM_lag
 
 
 vendors<- vendors[n_unique_changes_price==1 & n_changes_total>1,
@@ -29,7 +29,7 @@ vendors<- vendors[n_unique_changes_price==1 & n_changes_total>1,
                   by=.(valuePrice, car_ID, vendor_ID, Erstzulassung, 
                        Typ, prices_firstDate, prices_lastDate, Farbe)]
 
-vendors<- vendors[car_ID_pool>1,
+vendors<- vendors[n_carID_pool>1,
                   KM_mon_check:=min(KM_monotonicity),
                   
                   by=.(valuePrice, car_ID, vendor_ID, Typ)]
@@ -39,7 +39,7 @@ vendors<- vendors[car_ID_pool>1,
 
 nrow(vendors[vendors$n_unique_changes_price==1 & vendors$n_changes_total>1,])
 nrow(vendors[vendors$KM_mon_check<0,])
-nrow(vendors[vendors$car_ID_pool>1,])
+nrow(vendors[vendors$n_carID_pool>1,])
 
 
 # Keep only latest observations for doublets ------------------------------
@@ -50,7 +50,7 @@ vendors$cars_lastChange[!is.na(vendors$firstDate)]<- vendors$firstDate[!is.na(ve
 
 
 # Keep only realistic observations for car ID pool ------------------------
-vendors[car_ID_pool>1 & cars_lastDate> prices_firstDate]<- NA
+vendors[n_carID_pool>1 & cars_lastDate> prices_firstDate]<- NA
 vendors<- vendors[!is.na(vendors$vendor_ID),]
 
 
