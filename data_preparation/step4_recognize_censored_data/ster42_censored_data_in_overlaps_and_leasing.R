@@ -31,7 +31,7 @@ leasing$right_censor<- ifelse(leasing$cars_lastDate==leasing$maxDate_cars &
                                 leasing$prices_lastDate==leasing$maxDate_prices,
                               0, 1)
 
-
+leasing$right_censor[leasing$prices_lastDate=="2012-12-18",]<- 1
 
 #  ------------------------------------------------------------------------
 
@@ -58,6 +58,8 @@ overlaps$right_censor<- ifelse(overlaps$cars_lastDate==overlaps$maxDate_cars &
                                 overlaps$prices_lastDate==overlaps$maxDate_prices,
                               0, 1)
 
+
+overlaps$right_censor[overlaps$prices_lastDate=="2012-12-18",]<- 1
 
 save(leasing, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/leasing_after_step42.RData")
 save(overlaps, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/overlaps_after_step42.RData")

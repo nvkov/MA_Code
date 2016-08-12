@@ -4,7 +4,6 @@ library("stringi")
 library("data.table")
 library("IRanges")
 
-#NB!!!!! Drop unrealistically high prices!
 
 load("C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/df_merge_after_step39.RData")
 
@@ -130,6 +129,14 @@ irrelVars<- c("car_group", "car_group1", "IDs", "IDs1", "lag_km", "lag_price", "
               "maxDate_cars", "maxDate_prices")
 
 vendors<- vendors[,-irrelVars,with=F]
+
+
+
+# Mark cars that were present on the last date recorded -------------------
+vendors$right_censor[vendors$prices_lastDate=="2012-12-18"]<- 1
+
+
+
 
 # # Relax the matching assumptions and try to form groups again -------------
 # mini<-vendors[vendors$right_censor==0 ,`:=`(car_group1=length(unique(car_ID)), 

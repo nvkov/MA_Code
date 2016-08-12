@@ -50,8 +50,8 @@ vendors$valuePrice[vendors$valuePrice>=100000 & vendors$Sclass==0]<-vendors$valu
 # Look at prices per car type -------------------------------------------------
 
 for(i in unique(vendors$Typ)){
-print(i)
-print(summary(vendors$valuePrice[vendors$Typ==i]))
+  print(i)
+  print(summary(vendors$valuePrice[vendors$Typ==i]))
 }
 
 
