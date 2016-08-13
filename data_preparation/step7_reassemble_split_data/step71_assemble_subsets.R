@@ -9,7 +9,7 @@ library("survival")
 
 #Set working directory
 project_directory<- "C:/Users/Nk/Documents/Uni/MA"
-data_directory<-"/Pkw/MobileDaten/generatedData/step5/with_MS/"
+data_directory<-"/Pkw/MobileDaten/generatedData/step6/with_MS/"
 final_data<-"/Pkw/MobileDaten/generatedData/final_dataset/"
 
 wd<- paste0(project_directory, data_directory)
@@ -17,7 +17,7 @@ wd<- paste0(project_directory, data_directory)
 setwd(wd)
 
 
-files.list<- list.files(pattern="new*")[1:250]
+files.list<- list.files(pattern="new*")
 
 #load files and merge:
 my.list<- lapply(files.list, function(x){
