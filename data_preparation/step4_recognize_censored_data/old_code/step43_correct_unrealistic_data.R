@@ -24,8 +24,8 @@ summary(vendors$valuePrice)
 
 # Drop unrealistic prices -------------------------------------------------
 
-View(vendors[vendors$valuePrice<1000,])
-View(vendors[vendors$valuePrice>150000,])
+#View(vendors[vendors$valuePrice<1000,])
+#View(vendors[vendors$valuePrice>150000,])
 
 #Unrealistic categories:
 
@@ -50,10 +50,10 @@ vendors$valuePrice[vendors$valuePrice>=100000 & vendors$Sclass==0]<-vendors$valu
 # Look at prices per car type -------------------------------------------------
 
 for(i in unique(vendors$Typ)){
-print(i)
-print(summary(vendors$valuePrice[vendors$Typ==i]))
+  print(i)
+  print(summary(vendors$valuePrice[vendors$Typ==i]))
 }
 
 
 
-save(vendors, file="df_merge_after_step43.RData")
+save(vendors, file="Merged_data/df_merge_after_step43.RData")

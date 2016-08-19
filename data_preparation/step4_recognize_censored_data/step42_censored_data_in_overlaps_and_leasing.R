@@ -40,13 +40,6 @@ overlaps<- overlaps[ ,relVars,with=F]
 
 # Find car ID pools -------------------------------------------------------
 
-overlaps<- overlaps[,car_ID_pool:= length(unique(Typ))
-                    ,by=.(car_ID) ]
-
-overlaps[overlaps$car_ID_pool>1 & overlaps$cars_lastDate>overlaps$prices_lastDate,]<- NA
-overlaps<- overlaps[is.na(overlaps$vendors),]
-
-
 # Find last observation for each car ID -----------------------------------
 
 overlaps<- overlaps[, `:=`(maxDate_cars=max(cars_lastDate), 
@@ -59,7 +52,7 @@ overlaps$right_censor<- ifelse(overlaps$cars_lastDate==overlaps$maxDate_cars &
                               0, 1)
 
 
-overlaps$right_censor[overlaps$prices_lastDate=="2012-12-18",]<- 1
+overlaps$right_censor[overlaps$prices_lastDate=="2012-12-18"]<- 1
 
 save(leasing, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/leasing_after_step42.RData")
 save(overlaps, file="C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/Merged_data/overlaps_after_step42.RData")
