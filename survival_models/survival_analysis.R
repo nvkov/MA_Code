@@ -7,6 +7,7 @@ library("data.table")
 library("sets")
 library("survival")
 library("stargazer")
+library("beepr")
 
 #Set working directory
 project_directory<- "C:/Users/Nk/Documents/Uni/MA"
@@ -25,8 +26,8 @@ df$year_bought<-as.factor(format(df$prices_lastDate, "%Y"))
 # Survival models ---------------------------------------------------------
 relCols<- c("valuePrice", "newTOM", "MS","DOP", "Quantile", "age", "Leather_seats", 
             "Full_service_history", "Xenon_lights", "color_cat", "year_bought", 
-            "Leistung", "Typ","status", "vendor_ID", "car_ID")
-df1<- df[df$DOP<=2,relCols, with=F]
+            "Leistung", "Typ","status", "vendor_ID", "car_ID", "prices_firstDate", "prices_lastDate") 
+df1<- df[df$DOP<=2 & df$newTOM<400,relCols, with=F]
 df1$newDOP<- df1$DOP*10
 
 # Generate some vendor profile variables ----------------------------------
@@ -36,13 +37,67 @@ df1$size_vendor<- df1$size_vendor/100
 
 df1<- df1[,times_present_diff_price:=1:.N, by=car_ID]
 df1<- d1[, total_price_reduction]
+df1$valuePrice100<- df1$valuePrice/100
+df1$Class<- gsub("[0-9]", "" ,df1$Typ)
+df1$Hub_Cat<- gsub("[A-Z]", "", df1$Typ)
 # Begin survivavl analysis ------------------------------------------------
 
-fitCPH1 <- coxph(Surv(newTOM, status, type="right") ~ MS+ newDOP + Quantile + age + 
-                   Leather_seats +Full_service_history + valuePrice+
-                   Xenon_lights + color_cat + year_bought +size_vendor + times_present_diff_price +strata(Typ), data=df1)
+
+# Kaplan-Meier vs. Nelson-Aalen -------------------------------------------
+
+fitKM <- survfit(Surv(newTOM, status)~ 1, type="kaplan-meier", data=df1)
+
+fitNA<- survfit(coxph(Surv(df1$newTOM, df1$status)~1), type="aalen")
+
+plot(fitKM)
+lines(fitNA, col="red")
+
+# Cox proportional hazards ------------------------------------------------
+
+
+fitCPH1 <- coxph(Surv(newTOM, event=status, type="right") ~ MS+ newDOP + Quantile + age + 
+                   Leather_seats +Full_service_history + valuePrice100+ Leistung +
+                   Xenon_lights + color_cat + year_bought +size_vendor + times_present_diff_price +strata(Typ), data=df1) 
 summary(fitCPH1)
+
+prop.full <- cox.zph(fitCPH1)
+
+#  ------------------------------------------------------------------------
+
+
+fitCPH2 <- coxph(Surv(newTOM, event=status, type="right") ~ scale(MS)+ scale(newDOP) + Quantile + age + 
+                   Leather_seats +Full_service_history + valuePrice100+ Leistung +
+                   Xenon_lights + color_cat + year_bought +size_vendor + times_present_diff_price +strata(Typ), data=df1) 
+summary(fitCPH2)
+
+
+survfitCPH1 <- survfit(Surv(newTOM, status)~strata(Class) , data=df1) 
+beep(12)
+
+
+plot(survfitCPH1, col=1:length(unique(df1$Class)), xmax=300, lwd=2)
+legend(200, 0.9, unique(df1$Class), col=1:length(unique(df1$Class)), lty=1, lwd=2)
 #(res.zph1 <- cox.zph(fitCPH1))
+
+
+survfitCPH1 <- survfit(Surv(newTOM, status)~strata(Hub_Cat) , data=df1) 
+beep(12)
+
+plot(survfitCPH1, col=1:length(unique(df1$Hub_Cat)), xmax=300, lwd=2)
+legend(200, 0.9, unique(df1$Hub_Cat), col=1:length(unique(df1$Hub_Cat)), lty=1, lwd=2)
+#(res.zph1 <- cox.zph(fitCPH1))
+
+#  ------------------------------------------------------------------------
+
+survfitCPH1 <- survfit(Surv(newTOM, status)~strata(Leistung) , data=df1) 
+beep(12)
+
+plot(survfitCPH1, col=1:length(unique(df1$Leistung)), xmax=300, lwd=2)
+legend(200, 0.9, unique(df1$Leistung), col=1:length(unique(df1$Leistung)), lty=1, lwd=2)
+
+
+#  ------------------------------------------------------------------------
+
 
 fitCPH_A150<-coxph(Surv(newTOM, status) ~ MS+ DOP + Quantile + age + 
                      Leather_seats +Full_service_history +
@@ -140,4 +195,12 @@ average_TOMs<- average_TOMs[,-1]
 
 
 
+# AFT models --------------------------------------------------------------
+
+fitAFT1 <- survreg(Surv(newTOM, event=status, type="right") ~ MS+ newDOP + Quantile + age + 
+                   Leather_seats +Full_service_history + valuePrice100+ Leistung +
+                   Xenon_lights + color_cat + year_bought +size_vendor + times_present_diff_price +strata(Typ), data=df1) 
+summary(fitAFT1)
+
+exp(fitAFT1$coefficients)
 
