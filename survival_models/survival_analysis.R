@@ -40,6 +40,7 @@ df1<- d1[, total_price_reduction]
 df1$valuePrice100<- df1$valuePrice/100
 df1$Class<- gsub("[0-9]", "" ,df1$Typ)
 df1$Hub_Cat<- gsub("[A-Z]", "", df1$Typ)
+df1$qage <- cut(df1$age, 4)
 # Begin survivavl analysis ------------------------------------------------
 
 
@@ -99,10 +100,36 @@ legend(200, 0.9, unique(df1$Leistung), col=1:length(unique(df1$Leistung)), lty=1
 #  ------------------------------------------------------------------------
 
 
-fitCPH_A150<-coxph(Surv(newTOM, status) ~ MS+ DOP + Quantile + age + 
+fitCPH_A150<-coxph(Surv(newTOM, status) ~ MS+ DOP + Quantile + qage + 
                      Leather_seats +Full_service_history +
-                     Xenon_lights + color_cat + year_bought, data=df1[df1$Typ=="A150"])
+                     Xenon_lights + color_cat + strata(year_bought), data=df1[df1$Typ=="A150"])
 summary(fitCPH_A150) 
+
+
+
+
+# Diagnostics -------------------------------------------------------------
+#Inspect proportionality:
+cox.zph(fitCPH_A150)
+
+pdf("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/martingale_plots/A150.pdf")
+par(mfrow=c(2,2))
+#Look at the martingale residuals:
+plot(df1$DOP[df1$Typ=="A150"], residuals(fit), col="grey", ylab="Martingale residuals", xlab="Degree of Overpricing")
+lines(lowess(df1$DOP[df1$Typ=="A150"], residuals(fit)), col="red")
+
+plot(df1$MS[df1$Typ=="A150"], residuals(fit), col="grey", ylab="Martingale residuals", xlab="Market size")
+lines(lowess(df1$MS[df1$Typ=="A150"], residuals(fit)), col="red")
+
+plot(df1$Quantile[df1$Typ=="A150"], residuals(fit), col="grey", ylab="Martingale residuals", xlab="Quantile")
+lines(lowess(df1$Quantile[df1$Typ=="A150"], residuals(fit)), col="red")
+
+plot(df1$age[df1$Typ=="A150"], residuals(fit), col="grey", ylab="Martingale residuals", xlab="Age")
+lines(lowess(df1$age[df1$Typ=="A150"], residuals(fit)), col="red")
+dev.off()
+ 
+# End diagnostics ---------------------------------------------------------
+
 
 fitCPH_A180<-coxph(Surv(newTOM, status) ~ MS+ DOP + Quantile + age + 
                      Leather_seats +Full_service_history +

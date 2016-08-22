@@ -62,9 +62,13 @@ Models<- NULL
 for (i in unique(factor(df1$Typ))){
   Models[[i]]<- coxph(Surv(newTOM, status) ~ MS+ DOP + Quantile + age + 
                          Leather_seats +Full_service_history +
-                         Xenon_lights + color_cat, data=df1[df1$Typ==i])
+                         Xenon_lights + color_cat +size_vendor, data=df1[df1$Typ==i])
 }
 
+zeroFit<- NULL
+for (i in unique(factor(df1$Typ))){
+  zeroFit[[i]]<- coxph(Surv(newTOM, status) ~ 1, data=df1[df1$Typ==i])
+}
 
 
 # Save results ------------------------------------------------------------
@@ -299,3 +303,23 @@ heat_mat<-t(as.data.frame((coefs)))
 
 nba_heatmap <- heatmap(heat_mat)
 nba_heatmap <- heatmap(heat_mat, Colv = NA, col = cm.colors(256), scale="column", margins=c(5,10))
+
+
+# Plot martingales vs variables -------------------------------------------
+for(i in unique(df1$Typ)){
+  png(paste0("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/martingale_plots/",i, ".png"))
+  par(mfrow=c(2,2))
+  #Look at the martingale residuals:
+  plot(df1$DOP[df1$Typ==i], residuals(zeroFit[[i]]), col="grey", ylab="Martingale residuals", xlab="Degree of Overpricing")
+  lines(lowess(df1$DOP[df1$Typ==i], residuals(zeroFit[[i]])), col="red")
+  
+  plot(df1$MS[df1$Typ==i], residuals(zeroFit[[i]]), col="grey", ylab="Martingale residuals", xlab="Market size")
+  lines(lowess(df1$MS[df1$Typ==i], residuals(zeroFit[[i]])), col="red")
+  
+  plot(df1$Quantile[df1$Typ==i], residuals(zeroFit[[i]]), col="grey", ylab="Martingale residuals", xlab="Quantile")
+  lines(lowess(df1$Quantile[df1$Typ==i], residuals(zeroFit[[i]])), col="red")
+  
+  plot(df1$age[df1$Typ==i], residuals(zeroFit[[i]]), col="grey", ylab="Martingale residuals", xlab="Age")
+  lines(lowess(df1$age[df1$Typ==i], residuals(zeroFit[[i]])), col="red")
+  dev.off()
+}
