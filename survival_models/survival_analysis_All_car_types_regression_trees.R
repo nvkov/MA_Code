@@ -8,6 +8,15 @@ library("sets")
 library("survival")
 library("stargazer")
 library("beepr")
+library("rpart")
+library("partykit")
+library("coin")
+library("caret")
+library("verification") # for Brier score
+library("pec")
+library("survAUC")
+library("LTRCtrees")
+library("peperr")
 
 #Set working directory
 project_directory<- "C:/Users/Nk/Documents/Uni/MA"
@@ -55,271 +64,167 @@ regs<- "MS+ DOP + Quantile + age +
 Leather_seats +Full_service_history +
 Xenon_lights + color_cat + year_bought"
 
-
-
+rm(df)
+df1$newMS<- df1$MS/10
 # Survival models ---------------------------------------------------------
 Models<- NULL
-for (i in unique(factor(df1$Typ))){
-  Models[[i]]<- coxph(Surv(newTOM, status) ~ MS+ DOP + Quantile + age + 
-                         Leather_seats +Full_service_history +
-                         Xenon_lights + color_cat +size_vendor, data=df1[df1$Typ==i])
-}
+Models1<- NULL
+#for (i in unique(factor(df1$Typ))){
+i<- "A140"
+  Models[[i]]<- rpart(Surv(newTOM, status) ~ MS + DOP + Quantile + age + 
+                         color_cat +size_vendor, data=df1[df1$Typ==i])
 
-zeroFit<- NULL
-for (i in unique(factor(df1$Typ))){
-  zeroFit[[i]]<- coxph(Surv(newTOM, status) ~ 1, data=df1[df1$Typ==i])
-}
+  Models1[[i]]<- ctree(Surv(newTOM, status) ~  MS+ DOP + Quantile + age +as.factor(color_cat), data=df1[df1$Typ==i], mincriterion=0.999999)
+  #}
 
-
-# Save results ------------------------------------------------------------
-
-
-sink("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/tab_cphS.tex")
-stargazer(Models[["S250"]], Models[["S320"]], Models[["S350"]], Models[["S400"]], 
-          Models[["S420"]], Models[["S450"]], Models[["S500"]], Models[["S550"]], 
-          Models[["S600"]],
-          apply.coef = exp,
-          apply.se = exp, 
-          label="tab:cphS",
-          title="Cox proportional hazards. Comparing buyer preferences for the Mercedes-Benz S-Class", 
-          covariate.labels = c("Market size", "DOP", "Quantile",
-                               "Age", "Leather seats", "Full service history", 
-                               "Xenon lights", "Color"),
-          dep.var.caption  = "Dependent variable",
-          dep.var.labels   = "Time on market (in days)",
-          column.labels = c("S250", "S320", "S350", "S400", "S420", "S450", "S500", "S550", "S600"), 
-          no.space = T,
-          summary=F, 
-          align=TRUE, 
-          no.space = T, 
-          column.sep.width = "2pt", 
-          float.env="sidewaystable", 
-          font.size = "tiny", 
-          t.auto=F, 
-          p.auto=F, 
-          report = "vc*")
-sink()
-
-sink("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/tab_cphSL.tex")
-stargazer(Models[["SL280"]], Models[["SL300"]], Models[["SL320"]], Models[["SL350"]], 
-          Models[["SL600"]], 
-          apply.coef = exp,
-          apply.se = exp, 
-          label="tab:cphSL",
-          title="Cox proportional hazards. Comparing buyer preferences for the Mercedes-Benz SL-Class", 
-          covariate.labels = c("Market size", "DOP", "Quantile",
-                               "Age", "Leather seats", "Full service history", 
-                               "Xenon lights", "Color"),
-          dep.var.caption  = "Dependent variable",
-          dep.var.labels   = "Time on market (in days)",
-          column.labels = c("SL280", "SL300", "SL320", "SL350", "SL600"), 
-          no.space = T,
-          summary=F, 
-          align=TRUE, 
-          column.sep.width = "2pt", 
-          float.env="sidewaystable", 
-          font.size = "tiny", 
-          t.auto=F, 
-          p.auto=F, 
-          report = "vc*")
-sink()
-
-
-sink("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/tab_cphSLK.tex")
-stargazer(Models[["SLK200"]], Models[["SLK230"]], Models[["SLK250"]], 
-          Models[["SLK280"]], Models[["SLK300"]], Models[["SLK320"]], Models[["SLK350"]], 
-          apply.coef = exp,
-          apply.se = exp, 
-          label="tab:cphSLK",
-          title="Cox proportional hazards. Comparing buyer preferences for the Mercedes-Benz SLK-Class", 
-          covariate.labels = c("Market size", "DOP", "Quantile",
-                               "Age", "Leather seats", "Full service history", 
-                               "Xenon lights", "Color"),
-          dep.var.caption  = "Dependent variable",
-          dep.var.labels   = "Time on market (in days)",
-          column.labels = c("SLK200", "SLK230", "SLK250", "SLK280", "SLK300", "SLK320", "SLK350"), 
-          no.space = T,
-          summary=F, 
-          align=TRUE, 
-          column.sep.width = "2pt", 
-          float.env="sidewaystable", 
-          font.size = "tiny", 
-          t.auto=F, 
-          p.auto=F, 
-          report = "vc*")
-sink()
-
-
-# BClass ------------------------------------------------------------------
-
-sink("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/tab_cphB.tex")
-stargazer(Models[["B150"]], Models[["B160"]], Models[["B170"]], Models[["B180"]], 
-          Models[["B200"]], 
-          apply.coef = exp,
-          apply.se = exp, 
-          label="tab:cphB",
-          title="Cox proportional hazards. Comparing buyer preferences for the Mercedes-Benz B-Class", 
-          covariate.labels = c("Market size", "DOP", "Quantile",
-                               "Age", "Leather seats", "Full service history", 
-                               "Xenon lights", "Color"),
-          dep.var.caption  = "Dependent variable",
-          dep.var.labels   = "Time on market (in days)",
-          column.labels = c("B150", "B160", "B170", "B180", "B200"), 
-          no.space = T,
-          summary=F, 
-          align=TRUE, 
-          column.sep.width = "2pt", 
-          float.env="sidewaystable", 
-          font.size = "tiny", 
-          t.auto=F, 
-          p.auto=F, 
-          report = "vc*")
-sink()
-
-
-
-# CClass ------------------------------------------------------------------
-
-sink("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/tab_cphC.tex")
-stargazer(Models[["C160"]], Models[["C180"]], Models[["C200"]], Models[["C220"]], 
-          Models[["C230"]], Models[["C240"]],Models[["C250"]], Models[["C270"]], Models[["C280"]], 
-          Models[["C300"]], Models[["C320"]], Models[["C350"]],
-          apply.coef = exp,
-          apply.se = exp, 
-          label="tab:cphC",
-          title="Cox proportional hazards. Comparing buyer preferences for the Mercedes-Benz C-Class", 
-          covariate.labels = c("Market size", "DOP", "Quantile",
-                               "Age", "Leather seats", "Full service history", 
-                               "Xenon lights", "Color"),
-          dep.var.caption  = "Dependent variable",
-          dep.var.labels   = "Time on market (in days)",
-          column.labels = c("C160", "C180", "C200", "C220", "C230", "C240", 
-                            "C250", "C270", "C280", "C300", "C320", "C350"), 
-          no.space = T,
-          summary=F, 
-          align=TRUE, 
-          column.sep.width = "2pt", 
-          float.env="sidewaystable", 
-          font.size = "tiny", 
-          t.auto=F, 
-          p.auto=F, 
-          report = "vc*")
-sink()
-
-
-# AClass ------------------------------------------------------------------
-
-sink("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/tab_cphA.tex")
-stargazer(Models[["A140"]], Models[["A150"]], Models[["A160"]], Models[["A170"]], 
-          Models[["A180"]], Models[["A190"]],Models[["A200"]], Models[["A210"]], 
-          apply.coef = exp,
-          apply.se = exp, 
-          label="tab:cphA",
-          title="Cox proportional hazards. Comparing buyer preferences for the Mercedes-Benz A-Class", 
-          covariate.labels = c("Market size", "DOP", "Quantile",
-                               "Age", "Leather seats", "Full service history", 
-                               "Xenon lights", "Color"),
-          dep.var.caption  = "Dependent variable",
-          dep.var.labels   = "Time on market (in days)",
-          column.labels = c("A140", "A150", "A160", "A170","A180", "A190", "A200", "A210"),  
-          no.space = T,
-          summary=F, 
-          align=TRUE, 
-          column.sep.width = "2pt", 
-          float.env="sidewaystable", 
-          font.size = "tiny", 
-          t.auto=F, 
-          p.auto=F, 
-          report = "vc*")
-sink()
-
-
-# EClass ------------------------------------------------------------------
-sink("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/tab_cphE.tex")
-stargazer(Models[["E200"]], Models[["E220"]], Models[["E230"]], Models[["E240"]], 
-          Models[["E250"]], Models[["E270"]],Models[["E280"]], Models[["E300"]],
-          Models[["E320"]], Models[["E350"]], Models[["E400"]], Models[["E420"]], 
-          Models[["E430"]], Models[["E500"]],
-          apply.coef = exp,
-          apply.se = exp, 
-          label="tab:cphE",
-          title="Cox proportional hazards. Comparing buyer preferences for the Mercedes-Benz E-Class", 
-          covariate.labels = c("Market size", "DOP", "Quantile",
-                               "Age", "Leather seats", "Full service history", 
-                               "Xenon lights", "Color"),
-          dep.var.caption  = "Dependent variable",
-          dep.var.labels   = "Time on market (in days)",
-          column.labels = c("E200", "E220", "E230", "E240", "E250", 
-                            "E320", "E350", "E400", "E420", "E430", "E450"),  
-          no.space = T,
-          summary=F, 
-          align=TRUE, 
-          column.sep.width = "2pt", 
-          float.env="sidewaystable", 
-          font.size = "tiny", 
-          t.auto=F, 
-          p.auto=F, 
-          report = "vc*")
-sink()
-
-
-# MClass ------------------------------------------------------------------
-
-sink("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/tab_cphM.tex")
-stargazer(Models[["ML230"]], Models[["ML250"]], Models[["ML270"]], Models[["ML280"]], 
-          Models[["ML300"]], Models[["ML320"]], Models[["ML350"]], Models[["ML400"]],
-          Models[["ML420"]], Models[["ML450"]], Models[["ML500"]], 
-          apply.coef = exp,
-          apply.se  = exp, 
-          label="tab:cphM",
-          title="Cox proportional hazards. Comparing buyer preferences for the Mercedes-Benz M-Class", 
-          covariate.labels = c("Market size", "DOP", "Quantile",
-                               "Age", "Leather seats", "Full service history", 
-                               "Xenon lights", "Color"),
-          dep.var.caption  = "Dependent variable",
-          dep.var.labels   = "Time on market (in days)",
-          column.labels = c("ML230", "ML250", "ML270", "ML280", "ML300", "ML320", 
-                            "ML350", "ML400", "ML420", "ML450", "ML500"),
-          no.space = T,
-          summary=F, 
-          align=TRUE, 
-          column.sep.width = "2pt", 
-          float.env="sidewaystable", 
-          font.size = "tiny", 
-          t.auto=F, 
-          p.auto=F, 
-          report = "vc*") 
-sink()
-
-
-
-# Visualizations ----------------------------------------------------------
-
-
-# Make heatmap for the coeffs of all models -------------------------------
-#Extract model coefficients:
-coefs<-lapply(Models,function(x)coef(x))
-heat_mat<-t(as.data.frame((coefs)))
-
-nba_heatmap <- heatmap(heat_mat)
-nba_heatmap <- heatmap(heat_mat, Colv = NA, col = cm.colors(256), scale="column", margins=c(5,10))
-
-
-# Plot martingales vs variables -------------------------------------------
-for(i in unique(df1$Typ)){
-  png(paste0("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/martingale_plots/",i, ".png"))
-  par(mfrow=c(2,2))
-  #Look at the martingale residuals:
-  plot(df1$DOP[df1$Typ==i], residuals(zeroFit[[i]]), col="grey", ylab="Martingale residuals", xlab="Degree of Overpricing")
-  lines(lowess(df1$DOP[df1$Typ==i], residuals(zeroFit[[i]])), col="red")
+plot(Models[[i]])
+text(Models[[i]])
   
-  plot(df1$MS[df1$Typ==i], residuals(zeroFit[[i]]), col="grey", ylab="Martingale residuals", xlab="Market size")
-  lines(lowess(df1$MS[df1$Typ==i], residuals(zeroFit[[i]])), col="red")
   
-  plot(df1$Quantile[df1$Typ==i], residuals(zeroFit[[i]]), col="grey", ylab="Martingale residuals", xlab="Quantile")
-  lines(lowess(df1$Quantile[df1$Typ==i], residuals(zeroFit[[i]])), col="red")
-  
-  plot(df1$age[df1$Typ==i], residuals(zeroFit[[i]]), col="grey", ylab="Martingale residuals", xlab="Age")
-  lines(lowess(df1$age[df1$Typ==i], residuals(zeroFit[[i]])), col="red")
-  dev.off()
-}
+plot(Models1[[i]])
+text(Models1[[i]])
+
+df_A<- df1[df1$Class=="A"]
+
+# i<- "A"
+# Models[[i]]<- rpart(Surv(newTOM, status) ~ MS + DOP + Quantile + age + 
+#                       color_cat +size_vendor, data=df_A)
+# 
+# Models1[[i]]<- ctree(Surv(newTOM, status) ~  MS+ DOP + Quantile + age +as.factor(color_cat), data=df_A, mincriterion=0.999999)
+# #}
+# 
+# plot(Models[[i]])
+# text(Models[[i]])
+# 
+# 
+# plot(Models1[[i]])
+# text(Models1[[i]])
+# 
+# Split in test and training ----------------------------------------------
+df_A$rows<- rownames(df_A)
+setkey(df_A, "rows")
+set.seed(42)
+split<- sample(rownames(df_A), size=floor(0.6*nrow(df_A)))
+
+
+train<- df_A[split,]
+valid<- df_A[!split,]
+
+i<- "A_test"
+Models_rpart<- NULL
+Models_ctree<- NULL
+Models_cph<- NULL
+Models_KM<- NULL
+
+Models_rpart[[i]]<- rpart(Surv(newTOM, status) ~ MS+ DOP + Quantile + age, data=train)
+Models_ctree[[i]]<- ctree(Surv(newTOM, status) ~ MS+ DOP + Quantile + age, data=train, mincriterion=0.99)
+Models_cph[[i]]<- coxph(Surv(newTOM, status) ~ MS+ DOP + Quantile + age, data=train)
+Models_KM[[i]]<- survfit(Surv(newTOM, status) ~ 1, type="kaplan-meier", data=train)
+
+times<- seq(from=1, to=30, by=1)
+#Predict the mean survival time:
+predict_ctree<- predict(Models_ctree[["A_test"]], newdata=valid, type="response")
+predict_rpart<- Pred.rpart(Models_rpart[["A_test"]], newdata=valid)
+predict_cph<- predictSurvProb(Models_cph[["A_test"]],  newdata=valid[1:20,], times=seq(from=1, to=30, by=1))
+predict_KM<- predictSurvProb(Models_KM[["A_test"]],  newdata=valid, times=c(1,30))
+
+#NB!!! Look at predictSurvProb Package pec
+
+
+
+
+# AUC measure -------------------------------------------------------------
+# 
+# Surv.rsp <- Surv(train$newTOM, train$status)
+# Surv.rsp.new <- Surv(valid$newTOM, valid$status)
+# times <- seq(1, 30, 1)
+# AUC_hc <- AUC.hc(Surv.rsp, Surv.rsp.new, predict_cph, times)
+# AUC_hc
+# 
+# 
+# # Brier score and other measures ------------------------------------------
+# lp<- predict(Models_cph[["A_test"]], train)
+# 
+# predErr(Surv.rsp, Surv.rsp.new, lp, predict_cph, times,
+#         type = "brier", int.type = "unweighted")
+# predErr(Surv.rsp, Surv.rsp.new, lp, lpnew, times,
+#         type = "robust", int.type = "unweighted")
+# predErr(Surv.rsp, Surv.rsp.new, lp, lpnew, times,
+#         type = "brier", int.type = "weighted")
+# 
+
+
+# LTRCTrees ---------------------------------------------------------------
+LTRCART.pred <- Pred.rpart(Surv(newTOM, status) ~ MS + DOP + Quantile + age, train, valid)
+LTRCART.pred$KMcurves  ## list of predicted KM curves
+LTRCART.pred$Medians  ## vector of predicted median survival time
+
+
+# Median survival times for cox -------------------------------------------
+
+#mediantime_cph <- read.table(textConnection(capture.output(survfit(Models_cph[["A_test"]], newdata= valid))),skip=2,header=TRUE)$median
+
+
+
+# Other models ------------------------------------------------------------
+
+library("rms")
+
+library("randomForestSRC")
+
+library("party")
+
+
+fitform <- Surv(newTOM,status)~ MS + DOP + Quantile + age
+fitcox <- selectCox(fitform, data=train, rule="aic")
+fitrpart<- pecRpart(fitform, data=train)
+set.seed(13)
+
+fitrsf <- rfsrc(fitform,data=train[1:1000,],forest=TRUE,ntree=5)
+
+set.seed(13)
+
+fitcforest <- pecCforest(fitform, data=train[1:1000,], controls=cforest_classical(ntree=3))
+
+pcox <- predictSurvProb(fitcox,newdata=valid,times=20)
+
+prsf <- predictSurvProb(fitrsf,newdata=valid,times=20)
+
+extends <- function(...)TRUE
+
+pcf <- predictSurvProb(fitcforest,newdata=valid,times=20)
+
+prpart <- predictSurvProb(fitrpart,newdata=valid,times=20)
+
+extends <- function(...)TRUE
+
+set.seed(2006)
+
+fitpec <- pec(list("Cox"=fitcox,"rsf"=fitrsf,"cforest"=fitcforest), formula=Surv(newTOM,status)~MS +DOP + Quantile + age, data=train, cens.model="cox", splitMethod="Boot632plus", maxtime=2000, B=5, keep.index=TRUE, keep.matrix=TRUE)
+
+crps.t20 <- crps(fitpec,times=20)
+
+crps.t2000
+
+
+fitrpart<- rpart(fitform, data=train)
+extends<- function(...)TRUE
+predictSurvProb(fitrpart)
+
+
+# Example -----------------------------------------------------------------
+
+
+set.seed(18713)
+library(prodlim)
+library(survival)
+dat=SimSurv(100)
+pmodel=coxph(Surv(time,status)~X1+X2,data=dat)
+perror=pec(list(Cox=pmodel),Hist(time,status)~1,data=dat)
+
+## cumulative prediction error
+crps(perror,times=1) # between min time and 1
+## same thing:
+ibs(perror,times=1) # between min time and 1
+crps(perror,times=1,start=0) # between 0 and 1
+crps(perror,times=seq(0,1,.2),start=0) # between 0 and seq(0,1,.2)
