@@ -1,1 +1,0 @@
-#Explore vendor behavior:
