@@ -74,8 +74,8 @@ split<- sample(rownames(df_A), size=floor(0.6*nrow(df_A)))
 train<- df_A[split,]
 valid<- df_A[!split,]
 
-train<- train[1:200000,]
-valid<- valid[1:20000]
+train<- train[30000:35000,]
+valid<- valid[3000:4500]
 rm(df_A)
 
 fitform <- Surv(newTOM,status)~ MS + DOP + Quantile + age
@@ -84,11 +84,11 @@ fitcox <- selectCox(fitform, data=train, rule="aic")
 fitrpart<- pecRpart(fitform, data=train)
 set.seed(13)
 
-fitrsf <- rfsrc(fitform,data=train,forest=TRUE,ntree=50)
+fitrsf <- rfsrc(fitform,data=train,forest=TRUE,ntree=100, mtry=2)
 
 set.seed(13)
 
-fitcforest <- pecCforest(fitform, data=train, controls=cforest_classical(ntree=50))
+fitcforest <- pecCforest(fitform, data=train, controls=cforest_classical(ntree=100, mtry=2))
 
 # pcox <- predictSurvProb(fitcox,newdata=valid,times=20)
 # 

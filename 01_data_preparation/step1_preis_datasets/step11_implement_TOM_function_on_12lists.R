@@ -1,9 +1,9 @@
 rm(list=ls())
 
 #Set working directory
-project_directory<- getwd()
+project_directory<- "C:/Users/Nk/Documents/Uni/MA/"
 data_directory<-"/Pkw/MobileDaten/"
-setwd(paste0(project_directory))
+setwd(paste0(project_directory, data_directory))
 
 
 #=======================================================================Packages

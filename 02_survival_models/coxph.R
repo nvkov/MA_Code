@@ -31,37 +31,10 @@ wd<- paste0(project_directory, data_directory)
 setwd(wd)
 
 #Load dataset:
-load("dataset_full.RData")
-
-df$newTOM<- as.numeric(df$prices_lastDate-df$prices_firstDate) +1
-df$status<- abs(df$right_censor - 1)
-df$year_bought<-as.factor(format(df$prices_lastDate, "%Y")) 
-
-# Survival models ---------------------------------------------------------
-relCols<- c("valuePrice", "newTOM", "MS","DOP", "Quantile", "age", "Leather_seats", 
-            "Full_service_history", "Xenon_lights", "color_cat", "year_bought", 
-            "Leistung", "Typ","status", "vendor_ID", "car_ID", "prices_firstDate", "prices_lastDate", "Kategorie", "right_censor") 
-df1<- df[df$DOP<=2 & df$newTOM<400,relCols, with=F]
-df1$newDOP<- df1$DOP*10
-df1$age<- df1$age/30
-# Generate some vendor profile variables ----------------------------------
-
-df1<- df1[ ,size_vendor:=length(unique(car_ID)), by=vendor_ID]
-df1$size_vendor<- df1$size_vendor/100
-
-df1<- df1[,times_present_diff_price:=1:.N, by=car_ID]
-df1<- d1[, total_price_reduction]
-df1$valuePrice100<- df1$valuePrice/100
-df1$Class<- gsub("[0-9]", "" ,df1$Typ)
-df1$Hub_Cat<- gsub("[A-Z]", "", df1$Typ)
-# Begin survivavl analysis ------------------------------------------------
-
-
-rm(df)
-df1$newMS<- df1$MS/10
+load("ready_for_survival.RData")
 
 df_A<- df1[grep("E", df1$Class),]
-rm(df1)
+#rm(df1)
 
 # Split in test and training ----------------------------------------------
 df_A$rows<- rownames(df_A)
@@ -81,7 +54,7 @@ rm(df_A)
 # Select covariates -------------------------------------------------------
 
 
-fitform <- Surv(newTOM,status)~ MS + DOP + Quantile + age
+fitform <- Surv(newTOM,status)~ MS + DOP + Quantile + age + size_vendor
 
 
 
@@ -152,110 +125,10 @@ Surv.rsp.new <- Surv(valid$newTOM, valid$status)
 times <- c(1:100)
 
 
-# # CoxPH -------------------------------------------------------------------
-# 
-# 
-# cox.fit <- coxph(Surv(newTOM, status) ~ MS + DOP + Quantile + age,
-#                  x=TRUE, y=TRUE, method="breslow", data=train)
-# lp.cox <- predict(train.fit)
-# lpnew.cox <- predict(train.fit, newdata=valid)
-# 
-# # Rpart -------------------------------------------------------------------
-# 
-# 
-# rpart.fit <- rpart(Surv(newTOM, status) ~ MS + DOP + Quantile + age,
-#                    data=train)
-# partyrpart<- as.party(fpart.fit)
-# plot(partyrpart)
-# 
-# lp.rpart <- predict(rpart.fit)
-# lpnew.rpart <- predict(rpart.fit, newdata=valid)
-# 
-# 
-# # Ctree -------------------------------------------------------------------
-# 
-# 
-# ctree.fit <- ctree(Surv(newTOM, status) ~ MS + DOP + Quantile + age,
-#                    data=train)
-# lp.ctree <- predict(ctree.fit, type="prob")
-# lpnew.ctree <- predict(ctree.fit, newdata=valid,type="prob")
-# 
-# 
-# # Cforest -----------------------------------------------------------------
-# 
-# 
-# cforest.fit <- cforest(Surv(newTOM, status) ~ MS + DOP + Quantile + age,
-#                    data=train)
-# lp.cforest <- predict(cforest.fit)
-# lpnew.cforest <- predict(cforest.fit, newdata=valid)
-# 
-# 
-# # RSF ---------------------------------------------------------------------
-# 
-# 
-# rsf.fit <- rfsrc(Surv(newTOM, status) ~ MS + DOP + Quantile + age,
-#                        data=train)
-# lp.rsf <- predict(rsf.fit, train, OOB=T)$survival[,1]
-# lpnew.rsf <- predict(rsf.fit, valid, OOB=T)$survival[,1]
-# 
-# 
-# AUC_sh.cox <- AUC.sh(Surv.rsp, Surv.rsp.new, lp.cox, lpnew.cox, times)
-# plot(AUC_sh.cox)
-# abline(h = 0.5)
-
-# Print AUC ---------------------------------------------------------------
-
-
-# AUC_sh.cox <- AUC.sh(Surv.rsp, Surv.rsp.new, pcox.old, pcox, times)$auc
-# AUC_sh.rpart <- AUC.sh(Surv.rsp, Surv.rsp.new, prpart.old, prpart, times)$auc
-# AUC_sh.ctree <- AUC.sh(Surv.rsp, Surv.rsp.new, pctree.old, pctree, times)$auc
-# AUC_sh.cforest <- AUC.sh(Surv.rsp, Surv.rsp.new, pcf.old, pcf, times)$auc
-# AUC_sh.rsf <- AUC.sh(Surv.rsp, Surv.rsp.new, prsf.old, prsf, times)$auc
-
-
-
-# Plot AUC for different times --------------------------------------------
-# 
-# 
-# plot(AUC_sh.cox, col="red", type="l", ylim=c(0.4,0.6), xlim=c(0,20))
-# abline(h = 0.5)
-# lines(AUC_sh.rpart, col="green")
-# lines(AUC_sh.ctree, col="blue")
-# lines(AUC_sh.cforest, col="pink")
-# lines(AUC_sh.rsf, col="grey")
-
-
-# 
-# # Brier score -------------------------------------------------------------
-# IBS.cox <- predErr(Surv.rsp, Surv.rsp.new, pcox.old, pcox, times)$error
-# IBS.rpart <- predErr(Surv.rsp, Surv.rsp.new, prpart.old, prpart, times)$error
-# IBS.ctree <- predErr(Surv.rsp, Surv.rsp.new, pctree.old, pctree, times)$error
-# IBS.cforest <- predErr(Surv.rsp, Surv.rsp.new, pcf.old, pcf, times)$error
-# IBS.rsf <- predErr(Surv.rsp, Surv.rsp.new, prsf.old, prsf, times)$error
-
-# 
-# # Plot Brier score --------------------------------------------------------
-# plot(IBS.cox, col="red", type="l")
-# lines(IBS.rpart, col="green")
-# lines(IBS.ctree, col="blue")
-# lines(IBS.cforest, col="pink")
-# lines(IBS.rsf, col="grey")
-
-# Plot Brier score from pec -----------------------------------------------
-
-#Integrated Brier Score:
-#fitpec <- pec(list("Cox"=fitcox,"rsf"=fitrsf,"cforest"=fitcforest, "rpart"=fitrpart), formula=Surv(newTOM,status)~1, data=valid, times=c(1:10))
-# plot(fitpec, smooth=T, legend.x=35)
 
 
 # Save separate errors ----------------------------------------------------
 coxBS<- pec(list("Cox"=fitcox), formula=Surv(newTOM,status)~1, data=valid, times=c(1:10))$AppErr$Cox
-
-# rsfBS<- pec(list("rsf"=fitrsf), formula=Surv(newTOM,status)~1, data=valid, times=c(1:10))$AppErr$rsf
-# rpartBS<- pec(list("rpart"=fitrpart), formula=Surv(newTOM,status)~1, data=valid, times=c(1:10))$AppErr$rpart
-# ctreeBS<- pec(list("ctree"=fitctree), formula=Surv(newTOM,status)~1, data=valid, times=c(1:10))$AppErr$ctree
-# cforestBS<- pec(list("cforest"=fitcforest), formula=Surv(newTOM,status)~1, data=valid, times=c(1:10))$AppErr$cforest
-# referenceBS<- pec(list("Cox"=fitcox), formula=Surv(newTOM,status)~1, data=valid, times=c(1:10))$AppErr$Reference
 
 
 # Plot the Brier score ----------------------------------------------------
@@ -298,3 +171,83 @@ lines(rpartC.Intex, col="green")
 lines(ctreeC.Intex, col="blue")
 lines(cforestC.Intex, col="pink")
 lines(referenceC.Intex, col="black")
+
+
+
+
+# Select parameters -------------------------------------------------------
+cox.Class<- c("A", "B", "C", "E",  "ML", "S", "SL", "SLK")
+cox.Vars<- c("MS", "DOP", "Quantile", "age", "size_vendor")
+# creating parameter grids
+cox.grid <- expand.grid(Class=cox.Class)
+grid   <- list(cox.grid) 
+
+# calculating number of models
+models <- 1 + nrow(cox.grid) 
+
+# creating model arrays
+m.cox <- array(vector(mode = "list", length = 1), c(2, nrow(cox.grid)))
+
+# creating error matrix
+errors <- vector(mode = "numeric", length = models)
+names(errors) <- rep("RFS", length(errors))
+
+# setting up the clock
+time.set <- array(vector(mode = "list", length = 1), c(1, 10))
+time.set[[1, 1]] <- time.start
+
+coeffs<- matrix("NA",nrow=length(cox.Class), ncol=5)
+# Calculate models --------------------------------------------------------
+
+print("Estimating Cox...")
+for (i in 1:nrow(cox.grid)) {
+  
+  # displaying model number
+  print(paste0("Model ", i, " out of ", nrow(cox.grid)))
+  
+  # training models
+  m.cox[[i]] <-coxph(fitform, data=df1[df1$Class==cox.grid$Class[i],])
+  coeffs[i,1]<- round(m.cox[i][[1]]$coefficients["MS"],3)
+  coeffs[i,2]<- round(m.cox[i][[1]]$coefficients["DOP"],3)
+  coeffs[i,3]<- round(m.cox[i][[1]]$coefficients["Quantile"],3)
+  coeffs[i,4]<- round(m.cox[i][[1]]$coefficients["age"],3)
+  coeffs[i,5]<- round(m.cox[i][[1]]$coefficients["size_vendor"],3)
+}  
+  
+
+# information
+time.set[[1, 4]] <- proc.time()
+time.trial <- time.set[[1, 4]] - time.set[[1, 3]]
+print(paste0("Random Survival forest took ", round(time.trial[3]/60, digits = 0), " minutes."))
+#beep(5)
+
+
+# Save models in latex table ----------------------------------------------
+sink()
+
+
+# EClass ------------------------------------------------------------------
+sink("C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/tab_cph_Classes.tex")
+stargazer(m.cox[1],m.cox[2],m.cox[3],m.cox[4],m.cox[5],m.cox[6],m.cox[7],m.cox[8],
+          apply.coef = exp,
+          apply.se = exp, 
+          label="tab:cphE",
+          title="Cox proportional hazards. Comparing buyer preferences for major Mercedes-Benz Classes", 
+          covariate.labels = c("Market size", "DOP", "Quantile",
+                               "Age", "Size vendor"),
+          dep.var.caption  = "Dependent variable",
+          dep.var.labels   = "Time on market (in days)",
+          column.labels = c("A", "B", "C", "E", "M", 
+                            "S", "SL", "SLK"),  
+          no.space = T,
+          summary=F, 
+          align=TRUE, 
+          column.sep.width = "2pt", 
+          float.env="sidewaystable", 
+          font.size = "tiny", 
+          t.auto=F, 
+          p.auto=F, 
+          report = "vc*")
+sink()
+
+save(gridsearch.rfs, file="C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/gridserach.rfs5000.RData")

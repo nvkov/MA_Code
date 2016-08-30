@@ -44,3 +44,10 @@ View(df_merge[df_merge$car_ID %in% c("132041641", "132194616", "132243640", "132
 # Behavior 3: Vendors changing specs: -------------------------------------------------
 visualization_vars1<- c(visualization_vars, "valuePrice") 
 View(df_merge[df_merge$car_ID=="221099", visualization_vars1,with=F ])
+
+
+# Behavior: vendors change prices and kilometers --------------------------
+
+
+visualization_vars1<- c("car_ID","vendor_ID","Typ","Erstzulassung","Farbe", "valuePrice", "Kilometer", "cars_lastChange", "cars_lastDate") 
+View(df_merge[df_merge$car_ID=="128419156", visualization_vars1,with=F ])
