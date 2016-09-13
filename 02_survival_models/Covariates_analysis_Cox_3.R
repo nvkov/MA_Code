@@ -122,21 +122,26 @@ sink("C:/Users/Nk/Documents/Uni/MA/Tables/CoxzphFull.txt")
 print(cox.zph(coxfull)) 
 sink()
 
-plot(cox.zph(coxfull), col="gray")
+png("C:/Users/Nk/Documents/Uni/MA/Tables/CoxFullSchoenfeld_residuals.png")
+par(mfrow=c(2,3))
+plot(cox.zph(coxfull,transform='log'), col="red", resid=F)
+dev.off()
 
 
 # Plot martingale residuals -----------------------------------------------
 
-par(mfrow=c(3, 2))
- res <- residuals(m.cox[[1]], type="martingale")
- X <- as.matrix(df1[Class=="A", c("MS", "DOP", "Quantile", "age", "size_vendor"), with=F]) # matrix of covariates
- par(mfrow=c(3, 2))
+png("C:/Users/Nk/Documents/Uni/MA/Tables/CoxFullMartingale_residuals.png")
+
+par(mfrow=c(2, 3))
+ res <- residuals(coxfull, type="martingale")
+ X <- as.matrix(df1[, c("MS", "DOP", "Quantile", "age", "size_vendor"), with=F]) # matrix of covariates
+ par(mfrow=c(2, 3))
  for (j in 1:5) { # residual plots
-   plot(X[, j], res, xlab=c("MS", "DOP", "Quantile", "age", "Size vendors")[j], ylab="residuals")
+   plot(X[, j], res, xlab=c("MS", "DOP", "Quantile", "age", "Size vendors")[j], ylab="residuals", col="gray")
    abline(h=0, lty=2)
    lines(lowess(X[, j], res, iter=0), col="red")
    }
- 
+dev.off() 
 
 # Stepwise Regression AIC criterion ---------------------------------------
 

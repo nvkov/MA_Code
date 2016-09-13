@@ -50,7 +50,7 @@ valid1<- df_A[!split,]
 rm(df_A)
 
 nrows<- list(as.integer(c(1:200)), as.integer(c(2:300)))
-train<- train1[20000:25000]
+train<- train1[20000:33500]
 valid<- valid1[2000:3500]
 
 
@@ -62,5 +62,10 @@ fitform<- Surv(newTOM,status)~ MS + DOP + Quantile + age + size_vendor
 # Build model -------------------------------------------------------------
 
 rsf.fit<- rfsrc(fitform, ntree=100, data=train)
+hi<- plot.variable(rsf.fit, surv.type="rel.freq")+geom_point(aes(colour=3))
+
+rpart.fit<- rpart(fitform, data=train)
+hi<- as.party(rpart.fit)
+plot(hi)
 
 

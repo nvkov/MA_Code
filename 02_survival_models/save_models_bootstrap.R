@@ -76,11 +76,11 @@ CIctree<- NULL
 
 
 #i<-1
-for(i in c(12:length(data.nrows))){
+for(i in c(1:11)){
   print(paste0("Model ", i, " out of ", length(data.nrows)))
   dat<- train[as.integer(data.nrows[[i]])]
   
-fitform <- Surv(newTOM,status)~ MS + DOP + Quantile + age
+fitform <- Surv(newTOM,status)~ MS + DOP + Quantile + age + size_vendor 
 
 
 fitcox <- selectCox(fitform, data=dat, rule="aic")

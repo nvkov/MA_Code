@@ -34,23 +34,23 @@ load("ready_for_survival.RData")
 
 
 # Select subsample for tests ----------------------------------------------
-df_A<- df1[grep("A", df1$Class),]
-rm(df1)
+#df_A<- df1[grep("A", df1$Class),]
+#rm(df1)
 
 # Split in test and training ----------------------------------------------
-df_A$rows<- rownames(df_A)
-setkey(df_A, "rows")
+df1$rows<- rownames(df1)
+setkey(df1, "rows")
 set.seed(42)
-split<- sample(rownames(df_A), size=floor(0.6*nrow(df_A)))
+split<- sample(rownames(df1), size=floor(0.6*nrow(df1)))
 
 
-train1<- df_A[split,]
-valid1<- df_A[!split,]
-rm(df_A)
+train1<- df1[split,]
+valid1<- df1[!split,]
+#rm(df_A)
 
-nrows<- list(as.integer(c(1:200)), as.integer(c(2:300)))
-train<- train1[1:2000]
-valid<- valid1[2000:3500]
+#nrows<- list(as.integer(c(1:200)), as.integer(c(2:300)))
+#train<- train1[1:2000]
+#valid<- valid1[2000:3500]
 
 
 
@@ -92,3 +92,27 @@ pec.cox<- pec(list("Base"=m.cox[[1,1]], "w/o vendor size"=m.cox[[1,2]], "w/o age
               formula = Surv(newTOM, status)~ MS + DOP + Quantile + age + size_vendor, data=valid)
 
 plot(pec.cox)
+
+
+
+# Plot variable importance ------------------------------------------------
+
+model<- rfsrc(fitform, data=train1[1:20000,], ntree=100, mtry=2)
+varimp<- vimp(model)
+plot(varimp)
+
+
+varimp<- NULL
+for(i in c(1:100)){
+  
+  print(paste0("Load data for run " , i, " out of 100"))
+  load(paste0("C:/Users/Nk/Documents/Uni/MA/Pkw/MobileDaten/generatedData/saved_models/RSFrun_",i,".RData"))
+  
+  print(paste0("Calculating variable importance for run ", i))
+  varimp[[i]]<- vimp(fitrsf)$importance
+  }
+
+
+varimp<- as.data.frame(varimp)
+save(varimp, file="C:/Users/Nk/Documents/Uni/MA/varimp/varimp35.RData")
+

@@ -36,25 +36,25 @@ load("ready_for_survival.RData")
 
 
 # Select subsample for tests ----------------------------------------------
-df_A<- df1[grep("A", df1$Class),]
-rm(df1)
+#df_A<- df1[grep("A", df1$Class),]
+#rm(df1)
 
 # Split in test and training ----------------------------------------------
-df_A$rows<- rownames(df_A)
-setkey(df_A, "rows")
-set.seed(42)
-split<- sample(rownames(df_A), size=floor(0.6*nrow(df_A)))
+# df_A$rows<- rownames(df_A)
+# setkey(df_A, "rows")
+# set.seed(42)
+# split<- sample(rownames(df_A), size=floor(0.6*nrow(df_A)))
+# 
+# 
+# train1<- df_A[split,]
+# valid1<- df_A[!split,]
+# rm(df_A)
+# 
+# nrows<- list(as.integer(c(1:200)), as.integer(c(2:300)))
+# train<- train1[20000:25000]
+# valid<- valid1[2000:3500]
 
-
-train1<- df_A[split,]
-valid1<- df_A[!split,]
-rm(df_A)
-
-nrows<- list(as.integer(c(1:200)), as.integer(c(2:300)))
-train<- train1[20000:25000]
-valid<- valid1[2000:3500]
-
-
+train1<- df1
 
 # Select form -------------------------------------------------------------
 fitform<- Surv(newTOM,status)~ MS + DOP + Quantile + age + size_vendor
@@ -97,7 +97,7 @@ KM.MS.Q3<- survfit(fitform0, data=train1[train1$MS<=MSbounds[4] & train1$MS>=MSb
 KM.MS.Q4<- survfit(fitform0, data=train1[train1$MS<=MSbounds[5] & train1$MS>=MSbounds[4]])
 
 png("C:/Users/Nk/Documents/Uni/MA/Graphs/KMMS.png")
-plot(KM.MS.Q1)
+plot(KM.MS.Q1, xlab="Survival time", ylab="Survival probability")
 lines(KM.MS.Q2, col="red")
 lines(KM.MS.Q3, col="blue")
 lines(KM.MS.Q4, col="green")
@@ -142,11 +142,13 @@ KM.V.Q1<- survfit(fitform0, data=train1[train1$size_vendor<=Vendorbounds[2]])
 KM.V.Q2<- survfit(fitform0, data=train1[train1$size_vendor>=Vendorbounds[2] & train1$size_vendor<=Vendorbounds[3]])
 KM.V.Q3<- survfit(fitform0, data=train1[train1$size_vendor<=Vendorbounds[4] & train1$size_vendor>=Vendorbounds[3]])
 KM.V.Q4<- survfit(fitform0, data=train1[train1$size_vendor<=Vendorbounds[5] & train1$size_vendor>=Vendorbounds[4]])
+KM.V.Q0<- survfit(fitform0, data=train1[train1$size_vendor<=Vendorbounds[1],])
 
 png("C:/Users/Nk/Documents/Uni/MA/Graphs/KMvendor.png")
 plot(KM.V.Q1, xlab="Survival time", ylab="Survival probability")
 lines(KM.V.Q2, col="red")
 lines(KM.V.Q3, col="blue")
 lines(KM.V.Q4, col="green")
+#lines(KM.V.Q0, col="purple")
 dev.off()
 

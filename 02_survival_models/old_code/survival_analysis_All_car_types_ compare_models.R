@@ -90,6 +90,8 @@ set.seed(13)
 
 fitcforest <- pecCforest(fitform, data=train, controls=cforest_classical(ntree=100, mtry=2))
 
+fitctree<- pecCtree(fitform, data=train)
+
 # pcox <- predictSurvProb(fitcox,newdata=valid,times=20)
 # 
 # prsf <- predictSurvProb(fitrsf,newdata=valid,times=20)
@@ -107,9 +109,9 @@ extends <- function(...)TRUE
 set.seed(2006)
 
 #Integrated Brier Score:
-fitpec <- pec(list("Cox"=fitcox,"rsf"=fitrsf,"cforest"=fitcforest, "rpart"=fitrpart), formula=Surv(newTOM,status)~MS +DOP + Quantile + age, data=valid[1:1000])
+fitpec <- pec(list("Cox"=fitcox,"rsf"=fitrsf,"cforest"=fitcforest, "rpart"=fitrpart, "ctree"=fitctree), formula=Surv(newTOM,status)~MS +DOP + Quantile + age, data=valid[1:1000])
 
-plot(fitpec, smooth=T, legend.x=175)
+plot(fitpec, smooth=T, legend.x=130)
 
 #Concordance index:
 C.Index <- cindex(list("Cox"=fitcox,"rsf"=fitrsf,"cforest"=fitcforest, "rpart"=fitrpart), formula=Surv(newTOM,status)~MS +DOP + Quantile + age, data=valid[1:1000], eval.times=seq(1,250,1))
