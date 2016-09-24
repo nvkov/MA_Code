@@ -32,27 +32,7 @@ setwd(wd)
 #Load dataset:
 load("ready_for_survival.RData")
 
-
-# Select subsample for tests ----------------------------------------------
-#df_A<- df1[grep("A", df1$Class),]
-#rm(df1)
-
-# Split in test and training ----------------------------------------------
-df1$rows<- rownames(df1)
-setkey(df1, "rows")
-set.seed(42)
-split<- sample(rownames(df1), size=floor(0.6*nrow(df1)))
-
-
-train1<- df1[split,]
-valid1<- df1[!split,]
-#rm(df_A)
-
-#nrows<- list(as.integer(c(1:200)), as.integer(c(2:300)))
-#train<- train1[1:2000]
-#valid<- valid1[2000:3500]
-
-
+set.seed(22)
 
 # Select form -------------------------------------------------------------
 fitform<- Surv(newTOM,status)~ MS + DOP + Quantile + age + size_vendor
@@ -69,30 +49,52 @@ cox.fitform<- list(fitform, fitform1, fitform2, fitform3, fitform4, fitform5)
 # creating model arrays
 m.cox <- array(vector(mode = "list", length = 1), c(2, length(cox.fitform)))
 
+# choose one random sample:
+dat<- df1[,i := .I][sample(i, 13500)]
+pred<- df1[, i:=.I][sample(i, 1500)]
 
 #  ------------------------------------------------------------------------
+IBSrsf<- NULL
+IBScforest<- NULL
 
 
-IBS<- NULL
-print("Training regularized logit...")
+print("Training models...")
 for (i in 1:length(cox.fitform)) {
   
   # displaying model number
   print(paste0("Model ", i, " out of ", length(cox.fitform)))
   
-  # training models
-  #m.rfs[[1, i]] <-rfsrc(fitform, ntree=rfs.grid$ntree[i], splitrule=rfs.grid$splitrule[i], mtry=rfs.grid$mtry[i], data=train[as.integer(rfs.grid$nrows[[i]])])
-  m.cox[[1,i]] <-rfsrc(formula = cox.fitform[[i]],ntree=50, data=train)
+  m.cox[[1,i]] <-rfsrc(formula = cox.fitform[[i]],ntree=100,mtry=2, data=dat)
+  m.cox[[2,i]] <-pecCforest(formula = cox.fitform[[i]],control= cforest_control(ntree=100, mtry=2), data=dat)
   
 }
 
 
-pec.cox<- pec(list("Base"=m.cox[[1,1]], "w/o vendor size"=m.cox[[1,2]], "w/o age"=m.cox[[1,3]], 
+
+pec.rsf<- pec(list("Base"=m.cox[[1,1]], "w/o vendor size"=m.cox[[1,2]], "w/o age"=m.cox[[1,3]], 
                    "w/o Quantile"=m.cox[[1,3]], "w/o DOP"=m.cox[[1,4]], "w/o MS"=m.cox[[1,5]]), 
-              formula = Surv(newTOM, status)~ MS + DOP + Quantile + age + size_vendor, data=valid)
+              formula = Surv(newTOM, status)~ 1, times=c(1:120), data=pred)
 
-plot(pec.cox)
+print(pec.rsf)
 
+
+pec.cforest<- pec(list("Base"=m.cox[[2,1]], "w/o vendor size"=m.cox[[2,2]], "w/o age"=m.cox[[2,3]], 
+                   "w/o Quantile"=m.cox[[2,3]], "w/o DOP"=m.cox[[2,4]], "w/o MS"=m.cox[[2,5]]), 
+              formula = Surv(newTOM, status)~ 1, times=c(1:120), data=pred)
+
+print(pec.cforest)
+
+
+# Plot prediction error ---------------------------------------------------
+
+plot[c(1:120),]
+
+
+
+
+
+
+#  ------------------------------------------------------------------------
 
 
 # Plot variable importance ------------------------------------------------

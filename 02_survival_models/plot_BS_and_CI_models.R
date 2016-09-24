@@ -25,7 +25,7 @@ add_legend <- function(...) {
 
 
 # Load data ---------------------------------------------------------------
-pattern<- "valid50"
+pattern<- "train31"
 files.list<- list.files(pattern=paste0("*", pattern, ".RData"))
 
 lapply(files.list, FUN=load, .GlobalEnv)
@@ -69,7 +69,7 @@ sdCforest<- apply(BSCforest, 1, sd)
 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-png(paste0("C:/Users/Nk/Documents/Uni/MA/Plots_BS/BSmeans", pattern, ".png"))
+pdf(paste0("C:/Users/Nk/Documents/Uni/MA/Plots_BS/BSmeans", pattern, ".pdf"))
 par(mar = c(4, 4, 1.6, 0.2))
 
 plot(meanRsf, ylim=c(0,0.3), type="l", lwd=2, ylab = "Brier Score", xlab="days")
@@ -77,7 +77,7 @@ lines(meanRpart, col="red", lwd=2)
 lines(meanCtree, col="blue", lwd=2)
 lines(meanCox, col="pink", lwd=2)
 lines(meanCforest, col="green", lwd=2)
-abline(h=0.25, col="red")
+abline(h=0.25, col="grey", lty=2)
 
 add_legend("topright", legend=c("RSF", "Cforest", "Cox", "Rpart", "Ctree"), pch=19, 
            col=c("black", "green", "pink", "red", "blue"),
@@ -122,8 +122,8 @@ CICforest<- as.data.frame(CIcforest)
 meanCforest<- apply(CICforest, 1, mean)
 sdCforest<- apply(CICforest, 1, sd)
 
-png(paste0("C:/Users/Nk/Documents/Uni/MA/Plots_CI/CImeans", pattern, ".png"))
-
+pdf(paste0("C:/Users/Nk/Documents/Uni/MA/Plots_CI/CImeans", pattern, ".pdf"))
+par(mar = c(4, 4, 1.6, 0.2))
 plot(meanRsf, ylim=c(0.55, 0.75), type="l", lwd=2)
 #lines(I(meanRsf+1.98*sdRsf), col="black", lty=2)
 #lines(I(meanRsf-1.98*sdRsf), col="black", lty=2)
@@ -134,7 +134,7 @@ plot(meanRsf, ylim=c(0.55, 0.75), type="l", lwd=2)
 
 lines(meanRpart, col="red", lwd=2)
 lines(meanCtree, col="blue", lwd=2)
-abline(h=0.25, col="red")
+abline(h=0.25, col="grey", lty=2 )
 
 #lines(I(meanCtree+1.98*sdCtree), col="blue", lty=2)
 #lines(I(meanCtree-1.98*sdCtree), col="blue", lty=2)
@@ -410,7 +410,8 @@ dev.off()
 
 #pdf("C:/Users/Nk/Documents/Uni/MA/Plots_CI/allCI.pdf")
 
-png(paste0("C:/Users/Nk/Documents/Uni/MA/Plots_BS/allBS",pattern,".png"))
+#png(paste0("C:/Users/Nk/Documents/Uni/MA/Plots_BS/allBS",pattern,".png"))
+pdf(paste0("C:/Users/Nk/Documents/Uni/MA/Plots_BS/allBS",pattern,".pdf"))
 
 pp <- layout(matrix(c(1,0,0,0,0,2,3,0,0,0, 4, 5, 6,0,0, 7, 8, 9, 10, 0, 11, 12, 13, 14, 15), 5, 5, byrow=T))
 layout.show(pp)
@@ -421,8 +422,7 @@ par(mar=c(0.5, 0.5, 0.5, 0.5))
 par(oma=c(2.5,2.5,0,0))
 
 plot(c(0,120), c(-0.04,0.04), yaxt='n', xaxt='n', frame.plot=F, type='n') 
-text(60, -0.03, "RSF")
-
+text(60, -0.035, "RSF", cex=1.2)
 
 # Second line: Ctree ------------------------------------------------------
 
@@ -440,7 +440,9 @@ box(lty = '1373', col = 'gray')
 
 
 plot(c(0,120), c(-0.04,0.04),  yaxt='n', xaxt='n', frame.plot=F, type='n')
-text(60, -0.03, "Cforest")
+text(60, -0.035, "Cforest", cex=1.2)
+text(5, 0, "Cforest", srt=270, cex=1.2)
+lines(x = c(0,60), y = c(-0.04,0), lty=3, col="grey")
 
 
 
@@ -468,7 +470,9 @@ box(lty = '1373', col = 'gray')
 #dev.off()
 
 plot(c(0,120), c(-0.04,0.04), text("Cforest"), yaxt='n', xaxt='n', frame.plot=F, type='n')
-text(60, -0.03, "Rpart")
+text(60, -0.035, "Rpart", cex=1.2)
+text(5, 0, "Rpart", srt=270, cex=1.2)
+lines(x = c(0,60), y = c(-0.04,0), lty=3, col="grey")
 
 
 
@@ -506,7 +510,9 @@ box(lty = '1373', col = 'gray')
 #dev.off()
 
 plot(c(0,120), c(-0.04,0.04),  yaxt='n', xaxt='n', frame.plot=F, type='n')
-text(60, -0.03, "Ctree")
+text(60, -0.035, "Ctree", cex=1.2)
+text(5, 0, "Ctree", srt=270,  cex=1.2)
+lines(x = c(0,60), y = c(-0.04,0), lty=3, col="grey")
 
 
 
@@ -552,7 +558,8 @@ box(lty = '1373', col = 'gray')
 #dev.off()
 
 plot(c(0,120), c(-0.04,0.04), yaxt='n', xaxt='n', frame.plot=F, type='n')
-text(60, -0.03, "CoxPH")
+#text(60, -0.03, "CoxPH")
+text(5, 0, "CoxPH", srt=270, cex=1.2)
 
 dev.off()
 
@@ -818,7 +825,9 @@ dev.off()
 
 #pdf("C:/Users/Nk/Documents/Uni/MA/Plots_CI/allCI.pdf")
 
-png(paste0("C:/Users/Nk/Documents/Uni/MA/Plots_CI/allCI",pattern,".png"))
+#png(paste0("C:/Users/Nk/Documents/Uni/MA/Plots_CI/allCI",pattern,".png"))
+
+pdf(paste0("C:/Users/Nk/Documents/Uni/MA/Plots_CI/allCI",pattern,".pdf"))
 
 pp <- layout(matrix(c(1,0,0,0,0,2,3,0,0,0, 4, 5, 6,0,0, 7, 8, 9, 10, 0, 11, 12, 13, 14, 15), 5, 5, byrow=T))
 layout.show(pp)
@@ -829,7 +838,7 @@ par(mar=c(0.5, 0.5, 0.5, 0.5))
 par(oma=c(2.5,2.5,0,0))
 
 plot(c(0,120), c(-0.04,0.04), yaxt='n', xaxt='n', frame.plot=F, type='n') 
-text(60, -0.03, "RSF")
+text(60, -0.03, "RSF", cex=1.2)
 
 
 # Second line: Ctree ------------------------------------------------------
@@ -848,7 +857,9 @@ box(lty = '1373', col = 'gray')
 
 
 plot(c(0,120), c(-0.04,0.04),  yaxt='n', xaxt='n', frame.plot=F, type='n')
-text(60, -0.03, "Cforest")
+text(60, -0.03, "Cforest", cex=1.2)
+text(5, 0, "Cforest", srt=270, cex=1.2)
+lines(x = c(0,60), y = c(-0.04,0), lty=3, col="grey")
 
 
 
@@ -876,7 +887,9 @@ box(lty = '1373', col = 'gray')
 #dev.off()
 
 plot(c(0,120), c(-0.04,0.04), text("Cforest"), yaxt='n', xaxt='n', frame.plot=F, type='n')
-text(60, -0.03, "Rpart")
+text(60, -0.03, "Rpart", cex=1.2)
+text(5, 0, "Rpart", srt=270, cex=1.2)
+lines(x = c(0,60), y = c(-0.04,0), lty=3, col="grey")
 
 
 
@@ -915,6 +928,9 @@ box(lty = '1373', col = 'gray')
 
 plot(c(0,120), c(-0.04,0.04),  yaxt='n', xaxt='n', frame.plot=F, type='n')
 text(60, -0.03, "Ctree")
+text(5, 0, "Ctree", srt=270, cex=1.2)
+lines(x = c(0,60), y = c(-0.04,0), lty=3, col="grey")
+
 
 
 
@@ -960,7 +976,7 @@ box(lty = '1373', col = 'gray')
 #dev.off()
 
 plot(c(0,120), c(-0.04,0.04), yaxt='n', xaxt='n', frame.plot=F, type='n')
-text(60, -0.03, "CoxPH")
+text(5, 0, "CoxPH", srt=270, cex=1.2)
 
 dev.off()
 

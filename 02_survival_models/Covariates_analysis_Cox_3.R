@@ -112,7 +112,6 @@ save(gridsearch.rfs, file="C:/Users/Nk/Documents/Uni/MA/MA_Code/Results/gridsera
 
 fastbw(coxph(fitform, data=df1[1:1000,]), rule="aic")
 
-
 # Plot Schoenfeld residuals -----------------------------------------------
 coxfull<- coxph(fitform, data=df1)
 
@@ -122,26 +121,29 @@ sink("C:/Users/Nk/Documents/Uni/MA/Tables/CoxzphFull.txt")
 print(cox.zph(coxfull)) 
 sink()
 
-png("C:/Users/Nk/Documents/Uni/MA/Tables/CoxFullSchoenfeld_residuals.png")
-par(mfrow=c(2,3))
-plot(cox.zph(coxfull,transform='log'), col="red", resid=F)
-dev.off()
+# pdf("C:/Users/Nk/Documents/Uni/MA/Tables/CoxFullSchoenfeld_residuals.pdf")
+# par(mfrow=c(1,5))
+# plot(cox.zph(coxfull,transform='log'), col="red", resid=F)
+# dev.off()
 
 
 # Plot martingale residuals -----------------------------------------------
+res <- residuals(coxfull, type="martingale")
+X <- as.matrix(df1[, c("MS", "DOP", "Quantile", "age", "size_vendor"), with=F]) # matrix of covariates
 
-png("C:/Users/Nk/Documents/Uni/MA/Tables/CoxFullMartingale_residuals.png")
+pdf("C:/Users/Nk/Documents/Uni/MA/Tables/CoxFullResiduals.pdf", width=12)
 
-par(mfrow=c(2, 3))
- res <- residuals(coxfull, type="martingale")
- X <- as.matrix(df1[, c("MS", "DOP", "Quantile", "age", "size_vendor"), with=F]) # matrix of covariates
- par(mfrow=c(2, 3))
- for (j in 1:5) { # residual plots
-   plot(X[, j], res, xlab=c("MS", "DOP", "Quantile", "age", "Size vendors")[j], ylab="residuals", col="gray")
+par(mfrow=c(2, 5), mar=c(5,1,1,1), oma=c(0,2,0,0))
+
+  for (j in 1:5) { # residual plots
+   plot(X[, j], res, xlab=c("MS", "DOP", "Quantile", "Age", "Size vendors")[j], ylab="residuals", 
+        ylim=c(-1, 1), cex.lab=1.5, type="n")
    abline(h=0, lty=2)
-   lines(lowess(X[, j], res, iter=0), col="red")
+   lines(lowess(X[, j], res, iter=0), col="red", lwd=1.75)
    }
-dev.off() 
+ plot(cox.zph(coxfull,transform='log'), col="red", resid=F, lwd=1.75)
+ 
+ dev.off() 
 
 # Stepwise Regression AIC criterion ---------------------------------------
 

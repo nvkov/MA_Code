@@ -31,46 +31,41 @@ setwd(wd)
 #Load dataset:
 load("ready_for_survival.RData")
 
-
+set.seed(22)
 # Select subsample for tests ----------------------------------------------
-df_A<- df1[grep("A", df1$Class),]
-rm(df1)
-
-# Split in test and training ----------------------------------------------
-df_A$rows<- rownames(df_A)
-setkey(df_A, "rows")
-set.seed(42)
-split<- sample(rownames(df_A), size=floor(0.6*nrow(df_A)))
-
-
-train1<- df_A[split,]
-valid1<- df_A[!split,]
-rm(df_A)
-
-nrows<- list(as.integer(c(1:200)), as.integer(c(2:300)))
-train<- train1
-valid<- valid1[2000:3500]
-
+dat<- df1[,i:=.I][sample(i, 13500)]
 
 # Select form -------------------------------------------------------------
 fitform<- Surv(newTOM,status)~ MS + DOP + Quantile + age + size_vendor
 
 
 # Select parameters -------------------------------------------------------
-rpart<- rpart(fitform, data=train)
+rpart<- rpart(fitform, data=dat)
 
 tree<- as.party(rpart)
-png("C:/Users/Nk/Documents/Uni/MA/Graphs/rpartAseries.png")
-plot(tree, type="simple")
+pdf("C:/Users/Nk/Documents/Uni/MA/Graphs/rpartSample.pdf")
+plot(tree) 
 dev.off()
 
 
-ctree<- ctree(fitform,contro=ctree_control(mincriterion = 0.9999), data=train)
-
-png("C:/Users/Nk/Documents/Uni/MA/Graphs/ctreeAseries.png")
+ctree<- ctree(fitform,contro=ctree_control(mincriterion = 0.999999), data=dat)
+pdf("C:/Users/Nk/Documents/Uni/MA/Graphs/ctreeSample.pdf", width=20)
 plot(ctree)
-dev.off()
+#dev.off()
 
+node_surv(ctree, mainlab=)
+
+pdf("C:/Users/Nk/Documents/Uni/MA/Graphs/ctreeSample.pdf", width=20)
+plot(ctree, gp = gpar(fontsize = 2),     # font size changed to 6
+     inner_panel=node_inner,
+     ip_args=list(
+       abbreviate = F, 
+       id = T
+       ), 
+     terminal_panel=node_surv, 
+     tp_args=list(id=F)
+)
+dev.off()
 
 
 

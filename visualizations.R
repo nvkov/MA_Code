@@ -48,6 +48,25 @@ View(df_merge[df_merge$car_ID=="221099", visualization_vars1,with=F ])
 
 # Behavior: vendors change prices and kilometers --------------------------
 
-
 visualization_vars1<- c("car_ID","vendor_ID","Typ","Erstzulassung","Farbe", "valuePrice", "Kilometer", "cars_lastChange", "cars_lastDate") 
 View(df_merge[df_merge$car_ID=="128419156", visualization_vars1,with=F ])
+
+# Behavior: vendors change Leistung and Eigenschaften --------------------------
+
+visualization_vars1<- c("car_ID","vendor_ID","Typ","Erstzulassung","Eigenschaften", "Leistung", "valuePrice", "cars_lastChange", "cars_lastDate") 
+View(df_merge[df_merge$car_ID=="61105164", visualization_vars1,with=F ])
+
+# Behavior: vendors change HU --------------------------
+
+visualization_vars1<- c("car_ID","vendor_ID","Typ","Erstzulassung","HU", "valuePrice", "cars_lastChange", "cars_lastDate") 
+View(df_merge[df_merge$car_ID=="87836187", visualization_vars1,with=F ])
+
+# Behavior: vendors change Hubraum --------------------------
+
+visualization_vars1<- c("car_ID","vendor_ID","Typ","Erstzulassung","Hubraum", "valuePrice", "cars_lastChange", "cars_lastDate") 
+View(df_merge[df_merge$car_ID=="80021333", visualization_vars1,with=F ])
+
+# Behavior: vendors leasing --------------------------
+
+visualization_vars1<- c("car_ID","vendor_ID","Typ","Erstzulassung","Eigenschaften", "valuePrice", "cars_lastChange", "cars_lastDate") 
+View(df_merge[df_merge$car_ID %in% c("77704082", "77704083", "77704084"), visualization_vars1,with=F ])

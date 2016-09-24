@@ -37,7 +37,11 @@ barp<- barp[order(barp[,1], decreasing = T),]
 
 library(plotrix)
 
-barp(barp[,1], col = "grey70", names.arg = rownames(barp), width=0.15, staxx=T)
+pdf("C:/Users/Nk/Documents/Uni/MA/Graphs/varimp.pdf")
+par(mfrow=c(1,1))
+barp(barp[,1], col = "grey70", names.arg = rownames(barp), width=0.15, staxx=T, ylim=c(0,0.03))
 points(barp[,2], col="red", pch=19)
 points(barp[,3], col="red", pch=19)
+dev.off()
+
 
